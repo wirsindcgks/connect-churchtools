@@ -24,11 +24,11 @@ Das Plugin gleicht ausgewählte ChurchTools-Kalender und Gruppen-Homepages regel
 * **Sicher angebunden**: Der API-Key liegt verschlüsselt in der Datenbank oder als Konstante `CTP_API_KEY` in `wp-config.php`.
 * **Updates** wie bei jedem anderen Plugin über die WordPress-Plugin-Übersicht.
 
-Die Reiter dieses Fensters sind die Referenz: *Verwendung* beschreibt jede Option, *FAQ* und *Datenschutz* beantworten die häufigen Fragen. Eine Anleitung mit Bildern steht im Repository: https://github.com/wirsindcgks/churchtools-plugin
+Die Reiter dieses Fensters sind die Referenz: *Verwendung* beschreibt jede Option, *FAQ* und *Datenschutz* beantworten die häufigen Fragen. Eine Anleitung mit Bildern steht im Repository: https://github.com/wirsindcgks/connect-churchtools
 
 == Installation ==
 
-1. Unter https://github.com/wirsindcgks/churchtools-plugin/releases/latest die Datei `churchtools-plugin-vX.Y.Z.zip` herunterladen – nicht „Source code (zip)“, darin fehlen die gebauten Bestandteile.
+1. Unter https://github.com/wirsindcgks/connect-churchtools/releases/latest die Datei `churchtools-plugin-vX.Y.Z.zip` herunterladen – nicht „Source code (zip)“, darin fehlen die gebauten Bestandteile.
 2. In WordPress unter Plugins → Installieren → Plugin hochladen die ZIP-Datei installieren und aktivieren. Im linken Menü erscheint „ChurchTools“.
 3. Unter ChurchTools → Einstellungen → Verbindung den Instanz-Namen (z. B. `musterkirche` für https://musterkirche.church.tools) und den API-Key hinterlegen, dann „Verbindung testen“.
 4. Unter ChurchTools → Events → Kalender auf „Kalender von ChurchTools laden“ klicken und die gewünschten Kalender anhaken, optional mit Farbe und Standardbild.

@@ -43,7 +43,7 @@ jobs:
       - name: Check update.json points at this release
         run: |
           version="${GITHUB_REF_NAME#v}"
-          expected="https://github.com/wirsindcgks/churchtools-plugin/releases/download/v${version}/churchtools-plugin-v${version}.zip"
+          expected="https://github.com/wirsindcgks/connect-churchtools/releases/download/v${version}/churchtools-plugin-v${version}.zip"
           if ! jq -e --arg v "$version" --arg u "$expected" \
             '.version == $v and .download_url == $u' update.json > /dev/null; then
             echo "::error::update.json does not point at ${GITHUB_REF_NAME} (run: php bin/make-update-json.php .)"
@@ -139,7 +139,7 @@ jobs:
       # Signierter Herkunftsnachweis (Sigstore) fuer das ZIP: Er bescheinigt,
       # dass genau diese Datei aus diesem Workflow an diesem Commit stammt.
       # Pruefen laesst er sich mit
-      #   gh attestation verify churchtools-plugin-vX.Y.Z.zip -R wirsindcgks/churchtools-plugin
+      #   gh attestation verify churchtools-plugin-vX.Y.Z.zip -R wirsindcgks/connect-churchtools
       # Er verhindert kein boeswilliges Release, macht aber ein untergeschobenes
       # ZIP (nicht aus diesem Workflow) erkennbar.
       - uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2

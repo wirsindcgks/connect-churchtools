@@ -158,7 +158,7 @@ $out  = "# Copyright (C) " . gmdate('Y') . " wirsindcgks\n";
 $out .= "# This file is distributed under the GPL-2.0-or-later license.\n";
 $out .= "msgid \"\"\nmsgstr \"\"\n";
 $out .= "\"Project-Id-Version: ChurchTools Events {$version}\\n\"\n";
-$out .= "\"Report-Msgid-Bugs-To: https://github.com/wirsindcgks/churchtools-plugin/issues\\n\"\n";
+$out .= "\"Report-Msgid-Bugs-To: https://github.com/wirsindcgks/connect-churchtools/issues\\n\"\n";
 $out .= "\"POT-Creation-Date: " . gmdate('Y-m-d H:i:sO') . "\\n\"\n";
 $out .= "\"MIME-Version: 1.0\\n\"\n";
 $out .= "\"Content-Type: text/plain; charset=UTF-8\\n\"\n";

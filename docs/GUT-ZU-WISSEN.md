@@ -28,4 +28,4 @@ Samt importierter Bilder, nach der unter *Events → Synchronisation* eingestell
 
 Antworten zu Sync-Intervall und WP-Cron, deaktivierten Kalendern, Serverumzügen und Datenschutz stehen im FAQ-Teil der [readme.txt](../readme.txt) – im Backend bequemer zu lesen unter *Plugins → ChurchTools Events → Details*.
 
-Nicht dabei? Gern als [Issue](https://github.com/wirsindcgks/churchtools-plugin/issues) melden.
+Nicht dabei? Gern als [Issue](https://github.com/wirsindcgks/connect-churchtools/issues) melden.

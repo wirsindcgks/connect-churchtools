@@ -143,5 +143,5 @@ Danach die Gegenprobe: Steht eine im Plugin sichtbare Beschriftung wörtlich in 
 Der Workflow hat zwei Jobs: `build` mit reinen Leserechten (Composer, npm, ZIP) und `publish` mit Schreibrecht, der kein Paket installiert, sondern das ZIP mit einem signierten Herkunftsnachweis versieht und mit `gh` veröffentlicht. Alle Actions stehen auf Commit-SHAs; Dependabot (`.github/dependabot.yml`) hält sie aktuell. Ein ZIP lässt sich prüfen mit:
 
 ```bash
-gh attestation verify churchtools-plugin-vX.Y.Z.zip -R wirsindcgks/churchtools-plugin
+gh attestation verify churchtools-plugin-vX.Y.Z.zip -R wirsindcgks/connect-churchtools
 ```

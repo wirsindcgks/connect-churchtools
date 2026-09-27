@@ -1,11 +1,11 @@
 # ChurchTools Events
 
-[![Version](https://img.shields.io/github/v/release/wirsindcgks/churchtools-plugin?label=Version)](https://github.com/wirsindcgks/churchtools-plugin/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/wirsindcgks/churchtools-plugin/total?label=Downloads "Abrufe der Release-Pakete – automatische Updates zählen mit, es sind also keine Installationszahlen")](https://github.com/wirsindcgks/churchtools-plugin/releases)
-[![Tests](https://img.shields.io/github/actions/workflow/status/wirsindcgks/churchtools-plugin/ci.yml?branch=main&label=Tests "PHPUnit und PHPCS auf dem Hauptzweig")](https://github.com/wirsindcgks/churchtools-plugin/actions/workflows/ci.yml)
-![WordPress](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwirsindcgks%2Fchurchtools-plugin%2Fmain%2Fupdate.json&query=%24.requires&label=WordPress&prefix=%E2%89%A5)
-![PHP](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwirsindcgks%2Fchurchtools-plugin%2Fmain%2Fupdate.json&query=%24.requires_php&label=PHP&prefix=%E2%89%A5)
-[![Lizenz](https://img.shields.io/github/license/wirsindcgks/churchtools-plugin?label=Lizenz)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/wirsindcgks/connect-churchtools?label=Version)](https://github.com/wirsindcgks/connect-churchtools/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/wirsindcgks/connect-churchtools/total?label=Downloads "Abrufe der Release-Pakete – automatische Updates zählen mit, es sind also keine Installationszahlen")](https://github.com/wirsindcgks/connect-churchtools/releases)
+[![Tests](https://img.shields.io/github/actions/workflow/status/wirsindcgks/connect-churchtools/ci.yml?branch=main&label=Tests "PHPUnit und PHPCS auf dem Hauptzweig")](https://github.com/wirsindcgks/connect-churchtools/actions/workflows/ci.yml)
+![WordPress](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwirsindcgks%2Fconnect-churchtools%2Fmain%2Fupdate.json&query=%24.requires&label=WordPress&prefix=%E2%89%A5)
+![PHP](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwirsindcgks%2Fconnect-churchtools%2Fmain%2Fupdate.json&query=%24.requires_php&label=PHP&prefix=%E2%89%A5)
+[![Lizenz](https://img.shields.io/github/license/wirsindcgks/connect-churchtools?label=Lizenz)](LICENSE)
 
 **Termine und Gruppen aus ChurchTools auf der eigenen WordPress-Website – einmal in ChurchTools gepflegt, auf der Website von selbst aktuell.**
 
@@ -64,9 +64,11 @@ Das Plugin gleicht ausgewählte ChurchTools-Kalender und Gruppen-Homepages regel
 
 Voraussetzungen: WordPress ab 6.4, PHP ab 8.1, eine ChurchTools-Instanz und ein API-Key dafür.
 
-1. Unter [Releases](https://github.com/wirsindcgks/churchtools-plugin/releases/latest) die Datei `churchtools-plugin-vX.Y.Z.zip` herunterladen. **Nicht** „Source code (zip)“ – darin fehlen die gebauten Bestandteile, das Plugin läuft damit nicht.
+1. Unter [Releases](https://github.com/wirsindcgks/connect-churchtools/releases/latest) die Datei `churchtools-plugin-vX.Y.Z.zip` herunterladen. **Nicht** „Source code (zip)“ – darin fehlen die gebauten Bestandteile, das Plugin läuft damit nicht.
 2. In WordPress unter *Plugins → Installieren → Plugin hochladen* die ZIP-Datei installieren und aktivieren.
 3. Im linken Menü erscheint **ChurchTools**. Neue Versionen meldet das Plugin danach selbst.
+
+> **Umgezogen:** Bis Version 1.36.1 lag das Plugin unter `churchtools-plugin`. Installationen mit diesen Versionen fragen weiter die alte Adresse ab und bekommen keine Updates mehr angeboten. Einmal die aktuelle ZIP-Datei wie oben hochladen und *Aktuelle Version ersetzen* wählen – Einstellungen und Termine bleiben erhalten, danach laufen die Updates wieder von selbst. Ältere Versionen zum Zurückgehen liegen weiter unter den [bisherigen Releases](https://github.com/cgksmedia/churchtools-plugin/releases).
 
 ## Erste Schritte
 
@@ -100,7 +102,7 @@ Connect ChurchTools ist ein unabhängiges Projekt und steht in keiner Verbindung
 
 ## Hilfe und Mitmachen
 
-Ein Problem gefunden oder etwas vermisst? Gern als [Issue](https://github.com/wirsindcgks/churchtools-plugin/issues) melden.
+Ein Problem gefunden oder etwas vermisst? Gern als [Issue](https://github.com/wirsindcgks/connect-churchtools/issues) melden.
 
 Für Entwickler: Aufbau, lokale Entwicklung und Release-Ablauf stehen in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 

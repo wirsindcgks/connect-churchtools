@@ -75,7 +75,7 @@ final class VersionConsistencyTest extends TestCase
         // das Update ins Leere.
         $this->assertSame(
             sprintf(
-                'https://github.com/wirsindcgks/churchtools-plugin/releases/download/v%1$s/churchtools-plugin-v%1$s.zip',
+                'https://github.com/wirsindcgks/connect-churchtools/releases/download/v%1$s/churchtools-plugin-v%1$s.zip',
                 $this->pluginVersion()
             ),
             $metadata['download_url'] ?? null

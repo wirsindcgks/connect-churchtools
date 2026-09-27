@@ -37,7 +37,7 @@ final class GitHubUpdateChecker
      * SettingsPage::REPO_URL, wo der Tab „Updates“ dieselbe Quelle verlinkt.
      * Wer das Plugin aus einem Fork verteilt, aendert beide.
      */
-    private const METADATA_URL = 'https://raw.githubusercontent.com/wirsindcgks/churchtools-plugin/main/update.json';
+    private const METADATA_URL = 'https://raw.githubusercontent.com/wirsindcgks/connect-churchtools/main/update.json';
 
     /**
      * Der Name, unter dem WordPress dieses Plugin in Update- und

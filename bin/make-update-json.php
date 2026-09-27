@@ -22,7 +22,7 @@
 
 declare(strict_types=1);
 
-const REPO_URL = 'https://github.com/wirsindcgks/churchtools-plugin';
+const REPO_URL = 'https://github.com/wirsindcgks/connect-churchtools';
 
 $root = realpath($argv[1] ?? '.');
 if ($root === false) {

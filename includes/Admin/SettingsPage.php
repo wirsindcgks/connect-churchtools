@@ -41,7 +41,7 @@ final class SettingsPage
      * beide. Der abschliessende Schraegstrich gehoert dazu, die Links haengen
      * ihre Pfade direkt an.
      */
-    private const REPO_URL = 'https://github.com/wirsindcgks/churchtools-plugin/';
+    private const REPO_URL = 'https://github.com/wirsindcgks/connect-churchtools/';
 
     /**
      * Der Stil ist die Grundlage, auf der Kachel und Detailansicht aufsetzen —
@@ -3243,7 +3243,7 @@ final class SettingsPage
                 printf(
                     /* translators: %s: link to the plugin's GitHub repository */
                     esc_html__('Dieses Plugin liegt nicht auf WordPress.org, sondern bezieht seine Updates aus den GitHub-Releases von %s. Das Repository ist öffentlich – es ist kein Zugangstoken nötig.', 'churchtools-plugin'),
-                    '<a href="' . esc_url(self::REPO_URL) . '" target="_blank" rel="noopener noreferrer">wirsindcgks/churchtools-plugin</a>'
+                    '<a href="' . esc_url(self::REPO_URL) . '" target="_blank" rel="noopener noreferrer">wirsindcgks/connect-churchtools</a>'
                 );
                 ?>
             </p>
