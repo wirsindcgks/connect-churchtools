@@ -5,6 +5,12 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 Format basiert auf [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.37.0] - 2026-09-28
+
+### Changed
+
+- **Updates kommen aus einem neuen Repository: [wirsindcgks/connect-churchtools](https://github.com/wirsindcgks/connect-churchtools).** Das bisherige Repository `churchtools-plugin` lässt sich nach einer Umstellung des GitHub-Kontos nicht mehr beschreiben und auch nicht umziehen. Update-Prüfung, Links im Reiter *Einstellungen → Updates*, Plugin-URI und Doku zeigen auf die neue Adresse; ihr Name nimmt die für 2.0.0 angekündigte Umbenennung vorweg, der sichtbare Name bleibt bis dahin. **Installationen bis 1.36.1 fragen weiter die alte Adresse ab und bekommen dieses Update nicht angeboten**: einmal das ZIP von Hand hochladen und *Aktuelle Version ersetzen* wählen – Einstellungen und Termine bleiben erhalten, danach kommen Updates wieder von selbst. Ältere Versionen liegen weiter unter den Releases von `cgksmedia/churchtools-plugin`.
+
 ## [1.36.1] - 2026-09-25
 
 ### Changed
