@@ -107,11 +107,29 @@ jobs:
         with:
           php-version: '8.1'
           extensions: pdo_sqlite, sqlite3
-          tools: composer, wp-cli
+          tools: composer
 
       - run: composer install --prefer-dist --no-progress
 
+      # WP-CLI als feste Release-Version mit Pruefsumme statt ueber setup-php
+      # (tools: wp-cli). Das holte den jeweils neuesten Nightly-Build von
+      # github.com/wp-cli/builds; am 2026-10-02 antwortete die Adresse mit 503,
+      # setup-php meldete nur "Could not setup wp-cli" und lief weiter, und der
+      # Job scheiterte erst im naechsten Schritt an "wp: command not found".
+      # Version und Summe gehoeren zusammen - beim Anheben beide aendern (die
+      # Summe steht im Release als wp-cli-<version>.phar.sha256).
+      - name: WP-CLI laden
+        env:
+          WP_CLI_VERSION: '2.12.0'
+          WP_CLI_SHA256: ce34ddd838f7351d6759068d09793f26755463b4a4610a5a5c0a97b68220d85c
+        run: |
+          curl -fsSL --retry 3 -o "${RUNNER_TEMP}/wp-cli.phar" \
+            "https://github.com/wp-cli/wp-cli/releases/download/v${WP_CLI_VERSION}/wp-cli-${WP_CLI_VERSION}.phar"
+          echo "${WP_CLI_SHA256}  ${RUNNER_TEMP}/wp-cli.phar" | sha256sum --check --strict
+
       - run: bin/integration-setup.sh "${RUNNER_TEMP}/wordpress"
+        env:
+          WP_CLI: php ${{ runner.temp }}/wp-cli.phar
 
       - run: composer test:integration
         env:
