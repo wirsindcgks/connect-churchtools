@@ -66,6 +66,32 @@ jobs:
 
       - run: composer analyse
 
+  # Baut die Bloecke so, wie es der Release-Workflow tut (release.yml: dieselbe
+  # Node-Version, npm ci aus der Lockdatei). Ohne diesen Job lief der Build nur
+  # beim Release - ein Dependabot-PR fuer @wordpress/scripts war gruen, ohne
+  # dass je gebaut wurde.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Build-Ergebnis pruefen
+        run: |
+          for block in event-list group-list; do
+            test -s "blocks/${block}/build/index.js"
+            test -s "blocks/${block}/build/index.asset.php"
+          done
+
   # Gegen ein echtes WordPress mit SQLite (tests-integration/): Speichern ueber
   # die Settings-API, Verschluesselung, Migration, Sperre, Weiterleitungen,
   # Deinstallation. Die Installation entsteht bei jedem Lauf frisch.
