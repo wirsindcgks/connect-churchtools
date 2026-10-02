@@ -1,0 +1,43 @@
+name: Funktion vorschlagen
+description: Einen Wunsch oder eine neue Funktion für das Plugin vorschlagen.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Umgesetzt werden kann nur, was ChurchTools über seine API herausgibt. Was das Plugin heute
+        schon anzeigt und einstellen lässt, steht in
+        [Termine anzeigen](https://github.com/wirsindcgks/connect-churchtools/blob/main/docs/TERMINE.md) und
+        [Gruppen anzeigen](https://github.com/wirsindcgks/connect-churchtools/blob/main/docs/GRUPPEN.md) –
+        vielleicht gibt es die Option bereits.
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Wunsch / Anwendungsfall
+      description: Was möchtest du erreichen, und warum?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Betroffener Bereich
+      options:
+        - Termine (Anzeige)
+        - Gruppen (Anzeige)
+        - Synchronisation
+        - Verbindung / Einstellungen
+        - Block-Editor / WPBakery
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Wie löst du es bisher?
+      description: Ein Umweg, ein anderes Plugin, eigenes CSS – falls es etwas gibt.
+    validations:
+      required: false

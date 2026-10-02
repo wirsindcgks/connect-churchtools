@@ -1,0 +1,103 @@
+name: Fehler melden
+description: Etwas am Plugin funktioniert nicht wie erwartet.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Wirf vor der Beschreibung einen Blick ins **Protokoll** (`ChurchTools → Einstellungen → Protokoll`).
+        Dort steht im Klartext, was Synchronisation, Migrationen und Bild-Importe zuletzt getan haben –
+        oft lässt sich das Problem schon damit einordnen. Häufige Stolpersteine (Caching-Plugins,
+        Spaltenzahl, Grenzen) stehen in
+        [Gut zu wissen](https://github.com/wirsindcgks/connect-churchtools/blob/main/docs/GUT-ZU-WISSEN.md).
+
+        Dieses Issue ist öffentlich: bitte **keinen API-Key** und keine Personendaten aus ChurchTools einfügen.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Was ist passiert?
+      description: Beschreibe den Fehler möglichst genau. Screenshots helfen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Was hast du stattdessen erwartet?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Wie lässt sich der Fehler nachstellen?
+      description: Bei Anzeigefehlern bitte den verwendeten Shortcode oder die Block-Einstellungen angeben.
+      placeholder: |
+        1. …
+        2. …
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Betroffener Bereich
+      options:
+        - Termine (Anzeige)
+        - Gruppen (Anzeige)
+        - Synchronisation
+        - Verbindung / Einstellungen
+        - Block-Editor / WPBakery
+        - Updates
+        - Sonstiges
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin-Version
+      description: Zu finden unter `Plugins → Installierte Plugins`.
+      placeholder: "z. B. 1.37.0"
+    validations:
+      required: true
+
+  - type: input
+    id: wp-version
+    attributes:
+      label: WordPress-Version
+      description: Zu finden unter `Dashboard → Aktualisierungen`.
+      placeholder: "z. B. 6.8.2"
+    validations:
+      required: true
+
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP-Version
+      description: Zu finden unter `Werkzeuge → Website-Zustand → Bericht → Server`.
+      placeholder: "z. B. 8.3"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Theme, Page-Builder, Caching-Plugin
+      description: Bei Anzeigefehlern wichtig, sonst gern leer lassen.
+      placeholder: "z. B. Uncode, WPBakery, WP Rocket"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Auszug aus dem Protokoll
+      description: |
+        `ChurchTools → Einstellungen → Protokoll` – die Einträge rund um den Fehler hier einfügen.
+        Zugangsschlüssel und Personendaten stehen dort nicht drin.
+      render: shell
+    validations:
+      required: false

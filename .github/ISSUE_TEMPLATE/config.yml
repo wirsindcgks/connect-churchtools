@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Einrichtung
+    url: https://github.com/wirsindcgks/connect-churchtools/blob/main/docs/EINRICHTUNG.md
+    about: Verbindung, API-Key, Kalender, Design und Terminseiten Schritt für Schritt.
+  - name: Gut zu wissen
+    url: https://github.com/wirsindcgks/connect-churchtools/blob/main/docs/GUT-ZU-WISSEN.md
+    about: Caching-Plugins, Spaltenzahl, Grenzen und häufige Fragen – vieles klärt sich hier.
