@@ -21,6 +21,8 @@ Eindeutig ist eine Zeile über `(ct_event_id, start_date)` – eine Terminserie 
 
 Die **Gruppen** (seit dem Reiter „Gruppen") liegen nicht in einer Tabelle, sondern in Optionen ohne Autoload: `ctp_group_settings` (Homepage-Auswahl, Intervall), `ctp_groups` (Gruppen je Homepage) und `ctp_group_images` (Gruppe → Anhang). Eine Homepage hat an der Referenzinstanz höchstens zwölf Gruppen, und es gibt weder Zeitfenster noch Paging, für die sich eine Tabelle lohnen würde. Ihre Bilder tragen den Merker `_ctp_group_source_image_url` statt `_ctp_source_image_url` – unter dem Merker der Terminbilder hielte `EventRepository::orphanedAttachmentIds()` sie für verwaist und löschte sie beim nächsten Termin-Sync.
 
+Die **Beiträge** liegen ebenso in Optionen ohne Autoload: `ctp_post_settings` (Schalter, Intervall), `ctp_posts` (die neuesten 30 Beiträge öffentlicher Gruppen) und `ctp_post_images` (Bildadresse → Anhang – nach Adresse, weil ein Beitrag mehrere Bilder trägt). Ihre Bilder tragen den Merker `_ctp_post_source_image_url`, aus demselben Grund wie die Gruppenbilder.
+
 Das Schema wird über `dbDelta()` gepflegt; `Db\Installer::DB_VERSION` löst das Upgrade beim nächsten Seitenaufruf aus, eine Reaktivierung ist nicht nötig.
 
 Eine dritte Tabelle, `{prefix}ctp_log`, ist kein Datenbestand wie die beiden oben, sondern Betriebsspur: Sie hält fest, ob Migrationen, Synchronisation und Bild-Importe wirklich gelungen sind (siehe `Log`), und wird deshalb auch bei „Daten beim Deinstallieren behalten“ gelöscht.
@@ -29,19 +31,21 @@ Eine dritte Tabelle, `{prefix}ctp_log`, ist kein Datenbestand wie die beiden obe
 
 | Klasse | Aufgabe |
 | --- | --- |
-| `Admin\SettingsPage` | Backend in vier Bereichen, jeder eine eigene Unterseite im WordPress-Menü (`areas()`, `AREA_TABS`): Übersicht; Events (Terminliste, Kalender, Räume, Synchronisation, Einbinden); Gruppen (Gruppenliste, Homepages, Synchronisation, Einbinden – gerendert von `Admin\GroupsTab`, in derselben Reihenfolge wie bei den Events); Einstellungen (Verbindung, Design, Updates, Protokoll). Adressen immer über `tabUrl()`; alte `page=churchtools-plugin&tab=…`-Adressen leitet `redirectLegacyTabUrl()` weiter. Der gespeicherte API-Key geht nur an die gespeicherte Instanz (`effectiveConnection()`). |
+| `Admin\SettingsPage` | Backend in fünf Bereichen, jeder eine eigene Unterseite im WordPress-Menü (`areas()`, `AREA_TABS`): Übersicht; Events (Terminliste, Kalender, Räume, Synchronisation, Einbinden); Gruppen (Gruppenliste, Homepages, Synchronisation, Einbinden – gerendert von `Admin\GroupsTab`, in derselben Reihenfolge wie bei den Events); Beiträge (Beitragsliste, Synchronisation, Einbinden – gerendert von `Admin\PostsTab`); Einstellungen (Verbindung, Design, Updates, Protokoll). Adressen immer über `tabUrl()`; alte `page=churchtools-plugin&tab=…`-Adressen leitet `redirectLegacyTabUrl()` weiter. Der gespeicherte API-Key geht nur an die gespeicherte Instanz (`effectiveConnection()`). |
 | `Settings` | Die Option `ctp_settings`: Vorgaben, Lesen, Basis-Adresse, aktive Kalender. `writeUnsanitized()` schreibt frisch aus ChurchTools geholte Listen und Migrationen am Formular-Sanitizer vorbei, ohne dass der Aufrufer die Admin-Klasse kennen muss. |
 | `Sync\CalendarList` / `ResourceList` / `ChurchAddress` | Abruf und Abgleich von Kalenderliste, Raumliste und Gemeindeanschrift – für die Knöpfe im Backend und für jeden Sync-Lauf, mit dem Schutz gegen leere Antworten. |
 | `Api\Client` | REST-Client für die ChurchTools API (`Authorization: Login <token>`). Jeder Aufruf mit Key, ohne Key keiner; Weiterleitungen abgeschaltet (WordPress gäbe den Header sonst an den neuen Host weiter). |
 | `Security\ApiKey` | Woher der Key kommt: Konstante oder Umgebungsvariable `CTP_API_KEY` vor dem verschlüsselten Wert in `ctp_settings`; `isUsable()`, `decryptionFailed()`, `migrate()` für alte Verschlüsselungen. |
 | `Security\Crypto` | libsodium `crypto_secretbox`, Schlüssel per HKDF aus `AUTH_KEY` mit eigenem Kontext; liest die alte AES-CBC-Form (`ctp1:`, ohne Präfix) nur noch. |
-| `Sync\RunLock` | Atomare Sperre über `INSERT IGNORE` auf `wp_options` (nicht `add_option()`, das mit `ON DUPLICATE KEY UPDATE` schreibt), damit Termin- und Gruppen-Abgleich nie doppelt laufen; Übernahme nach 15 Minuten, Freigabe nur mit eigenem Token. |
+| `Sync\RunLock` | Atomare Sperre über `INSERT IGNORE` auf `wp_options` (nicht `add_option()`, das mit `ON DUPLICATE KEY UPDATE` schreibt), damit Termin-, Gruppen- und Beitrags-Abgleich nie doppelt laufen; Übernahme nach 15 Minuten, Freigabe nur mit eigenem Token. |
 | `Sync\SyncEngine` | Per WP-Cron (`ctp_run_sync`) getriggerter Sync unter der Sperre `events`. Fängt eigene Exceptions ab und persistiert sie, damit ein unbeaufsichtigter Cron-Lauf nie fatalt. `raw_data` speichert die Antwort ohne Aliase und ohne Personenverweise (`withoutPersonReferences()`). |
 | `Groups\GroupSync` / `GroupSettings` | Per WP-Cron (`ctp_run_group_sync`, eigenes Intervall, nur geplant, solange eine Homepage aktiv ist) übernommener Abgleich der Gruppen-Homepages, mit API-Key und unter der Sperre `groups`. Welche Gruppen erscheinen, entscheidet die Homepage in ChurchTools; `normalizeGroup()` übernimmt nur benannte Felder, keine Leiter und keine Angaben über den API-Benutzer. `GroupSettings` ist eine eigene Option mit eigenem Sanitizer, siehe dort. |
+| `Posts\PostSync` / `PostSettings` | Per WP-Cron (`ctp_run_post_sync`, eigenes Intervall, nur geplant, solange der Schalter an ist) übernommener Abgleich der Beiträge, mit API-Key und unter der Sperre `posts`. Nur Beiträge öffentlicher Gruppen, die für alle sichtbar sind, die die Gruppe sehen: als Filter im Abruf (`Client::getPublicPosts()`) und noch einmal an jedem Beitrag (`normalizePost()`), weil der Key mehr sieht als ein Besucher. Keine Verfasser, Kommentare oder Reaktionen. Ausgeschaltet zeigt `visiblePosts()` sofort nichts mehr, der nächste Lauf räumt Beiträge und Bilder ab. |
 | `Admin\UpgradeReadiness` / `MajorVersionNotice` | Ankündigung von 2.0.0 (seit 1.29.0): prüft je Website PHP- und WordPress-Version, Key-Format, Räume-Einstellung und Vorlagen im Theme; Hinweis im Backend (je Administrator ausblendbar) und Panel in der Übersicht. Die Zusage selbst: [COMPATIBILITY.md](COMPATIBILITY.md). |
 | `Admin\PrivacyPolicy` | Textvorschlag für die Datenschutzerklärung über `wp_add_privacy_policy_content()`. |
 | `Admin\GroupsTab` | Reiter „Gruppenliste", „Homepages", „Synchronisation" und „Einbinden" im Bereich Gruppen sowie das Gruppen-Panel der Übersicht – eigene Klasse statt weiterer Methoden in `SettingsPage`. Aufgebaut wie das Gegenstück bei den Events und über dieselben Bausteine gerendert (`renderSyncHead()`, `renderIntervalSelect()`, `renderOverviewRows()`, `renderQuicklinks()`, `lastSyncTone()`); `SyncHealthNotice::groupProblem()` meldet nach denselben Regeln wie `problem()`. Wer an einer Seite etwas ändert, zieht die andere mit. |
 | `Frontend\GroupListRenderer` | Kachelraster der Gruppen (`[ctp_groups]`, `Blocks\GroupListBlock`, WPBakery), mit denselben Klassen und Design-Einstellungen wie die Terminkacheln (`EventListRenderer::designArgs()`). |
+| `Admin\PostsTab` / `Frontend\PostListRenderer` | Bereich „Beiträge" (Beitragsliste, Synchronisation mit dem Schalter, Einbinden) und die Kacheln dazu (`[ctp_posts]`, `Blocks\PostListBlock`, WPBakery) – aufgebaut wie die Gruppen, mit denselben Klassen, ohne Auswahl-Reiter. |
 | `Sync\RetentionCleanup` | Per WP-Cron (`ctp_run_retention_cleanup`) löscht abgelaufene Events nach konfigurierbarer Frist. |
 | `Db\Installer` | Schema via `dbDelta()`, Cron-Zeitpläne (inkl. Umplanung bei Intervall-Wechsel). |
 | `Db\EventRepository` | Sämtliche SQL-Zugriffe, inkl. der gefilterten Abfragen für die Admin-Events-Übersicht. |
@@ -66,7 +70,7 @@ Shortcode, Gutenberg-Block und WPBakery-Element rufen alle `EventListRenderer::r
 
 ## Theme-Overrides
 
-`yourtheme/churchtools-plugin/event-{list|grid|upcoming|detail}.php`, für die Gruppen `group-grid.php` und `group-featured.php` (der Button nach ChurchTools liegt in `partials/group-cta.php`). Die einzelnen Zeilen/Karten liegen in `partials/` und werden vom Nachlade-Endpunkt separat gerendert – ein eigenes Layout-Template sollte diese Partials weiterhin einbinden oder `paging="0"` setzen.
+`yourtheme/churchtools-plugin/event-{list|grid|upcoming|detail}.php`, für die Gruppen `group-grid.php` und `group-featured.php` (der Button nach ChurchTools liegt in `partials/group-cta.php`), für die Beiträge `post-grid.php` und `post-featured.php` (das Popup in `partials/post-detail.php`). Die einzelnen Zeilen/Karten liegen in `partials/` und werden vom Nachlade-Endpunkt separat gerendert – ein eigenes Layout-Template sollte diese Partials weiterhin einbinden oder `paging="0"` setzen.
 
 ## Auffindbarkeit
 
@@ -98,9 +102,10 @@ composer lint     # PHPCS (PSR-12 + WordPress-Security/DB/I18n-Sniffs)
 composer test     # PHPUnit
 
 npm install
-npm run build          # kompiliert beide Gutenberg-Blöcke
+npm run build          # kompiliert alle drei Gutenberg-Blöcke
 npm run start          # Watch-Modus für den Termin-Block
 npm run start:groups   # Watch-Modus für den Gruppen-Block
+npm run start:posts    # Watch-Modus für den Beitrags-Block
 ```
 
 Für lokale Tests: Plugin-Ordner nach `wp-content/plugins/churchtools-plugin` verlinken/kopieren und aktivieren.
@@ -125,7 +130,7 @@ Was Anwender sehen, ist erst fertig, wenn es auch dort steht, wo Anwender nachse
 | Stelle | Wer liest sie |
 | --- | --- |
 | `README.md` | Wer das Repo besucht, bevor er das Plugin installiert – nur der Überblick mit den Bildern aus `docs/screenshots/`, kurz halten |
-| `docs/EINRICHTUNG.md`, `TERMINE.md`, `GRUPPEN.md`, `GUT-ZU-WISSEN.md` | Wer nach dem Überblick tiefer einsteigt: die ausführliche Anwenderdoku, von der README verlinkt |
+| `docs/EINRICHTUNG.md`, `TERMINE.md`, `GRUPPEN.md`, `BEITRAEGE.md`, `GUT-ZU-WISSEN.md` | Wer nach dem Überblick tiefer einsteigt: die ausführliche Anwenderdoku, von der README verlinkt |
 | `readme.txt` | Dieselben Leute im WordPress-Backend unter *Plugins → Details*, plus die vollständige Referenz aller Optionen. Dorthin kommt sie nicht von allein: `bin/make-update-json.php` schreibt ihre Abschnitte in `update.json`, WordPress zeigt eine `readme.txt` nur bei Plugins von wordpress.org an (seit 1.17.3, davor stand im Detailfenster nur der Changelog) |
 | `CHANGELOG.md` | Wer wissen will, was ein Update ändert |
 | Beschriftungen und Hilfetexte im Backend | Wer die Einstellung gerade vor sich hat |

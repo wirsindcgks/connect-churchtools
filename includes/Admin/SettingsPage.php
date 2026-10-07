@@ -16,6 +16,7 @@ use ChurchToolsPlugin\Frontend\EventWindow;
 use ChurchToolsPlugin\Frontend\Icons;
 use ChurchToolsPlugin\Frontend\LiveBadge;
 use ChurchToolsPlugin\Groups\GroupSettings;
+use ChurchToolsPlugin\Posts\PostSettings;
 use ChurchToolsPlugin\Log;
 use ChurchToolsPlugin\Security\ApiKey;
 use ChurchToolsPlugin\Security\Crypto;
@@ -90,10 +91,11 @@ final class SettingsPage
     }
 
     /**
-     * Die vier Bereiche des Backends, zugleich die Eintraege im linken
+     * Die Bereiche des Backends, zugleich die Eintraege im linken
      * WordPress-Menue (Nutzerentscheidung 2026-09-14: „links im Menue eine
      * Uebersicht und Einstiegspunkte fuer Events bzw. Gruppen", Design unter
-     * „Einstellungen").
+     * „Einstellungen"). Die Beitraege kamen 2026-10-07 als eigener Bereich
+     * dazu, nach derselben Regel: eigenes Thema, eigener Eintrag.
      *
      * Bis dahin gab es eine Reiterreihe mit zehn Knoepfen und links drei
      * Abkuerzungen, die per `&tab=` in dieselbe Seite fuehrten. Mit den Gruppen
@@ -109,6 +111,7 @@ final class SettingsPage
             'overview' => __('Übersicht', 'churchtools-plugin'),
             'events' => __('Events', 'churchtools-plugin'),
             'groups' => __('Gruppen', 'churchtools-plugin'),
+            'posts' => __('Beiträge', 'churchtools-plugin'),
             'settings' => __('Einstellungen', 'churchtools-plugin'),
         ];
     }
@@ -131,6 +134,9 @@ final class SettingsPage
         'overview' => ['status'],
         'events' => ['events', 'calendars', 'rooms', 'sync', 'embed'],
         'groups' => ['group_list', 'groups', 'group_sync', 'group_embed'],
+        // Ohne Auswahl-Reiter: Was oeffentlich ist, entscheidet ChurchTools,
+        // der Schalter steht unter „Synchronisation" (siehe PostsTab).
+        'posts' => ['post_list', 'post_sync', 'post_embed'],
         'settings' => ['connection', 'design', 'updates', 'log'],
     ];
 
@@ -153,7 +159,7 @@ final class SettingsPage
         $headers = [
             'overview' => [
                 'icon' => 'dashboard',
-                'tagline' => __('Der Zustand von Events und Gruppen auf einen Blick.', 'churchtools-plugin'),
+                'tagline' => __('Der Zustand von Events, Gruppen und Beiträgen auf einen Blick.', 'churchtools-plugin'),
             ],
             'events' => [
                 'icon' => 'calendar-alt',
@@ -163,9 +169,13 @@ final class SettingsPage
                 'icon' => 'groups',
                 'tagline' => __('Gruppen aus den Gruppen-Homepages in ChurchTools übernehmen und anzeigen.', 'churchtools-plugin'),
             ],
+            'posts' => [
+                'icon' => 'megaphone',
+                'tagline' => __('Beiträge öffentlicher Gruppen aus ChurchTools übernehmen und anzeigen.', 'churchtools-plugin'),
+            ],
             'settings' => [
                 'icon' => 'admin-settings',
-                'tagline' => __('Verbindung, Design und Updates – gilt für Events und Gruppen.', 'churchtools-plugin'),
+                'tagline' => __('Verbindung, Design und Updates – gilt für Events, Gruppen und Beiträge.', 'churchtools-plugin'),
             ],
         ];
 
@@ -268,6 +278,9 @@ final class SettingsPage
             'groups' => __('Homepages', 'churchtools-plugin'),
             'group_sync' => __('Synchronisation', 'churchtools-plugin'),
             'group_embed' => __('Einbinden', 'churchtools-plugin'),
+            'post_list' => __('Beitragsliste', 'churchtools-plugin'),
+            'post_sync' => __('Synchronisation', 'churchtools-plugin'),
+            'post_embed' => __('Einbinden', 'churchtools-plugin'),
             'sync' => __('Synchronisation', 'churchtools-plugin'),
             'design' => __('Design', 'churchtools-plugin'),
             'embed' => __('Einbinden', 'churchtools-plugin'),
@@ -343,6 +356,9 @@ final class SettingsPage
             'groups' => 'groups',
             'group_sync' => 'update',
             'group_embed' => 'editor-code',
+            'post_list' => 'list-view',
+            'post_sync' => 'update',
+            'post_embed' => 'editor-code',
             'sync' => 'update',
             'design' => 'admin-appearance',
             'embed' => 'editor-code',
@@ -1651,7 +1667,7 @@ final class SettingsPage
      *
      * @param array{type: string, message: string}|null            $problem
      * @param array{time: string, count: int, reasons: string}|null $imageWarning
-     * @param 'events'|'groups'                                    $subject
+     * @param 'events'|'groups'|'posts'                            $subject
      */
     public static function renderSyncHead(string $buttonId, ?array $problem, ?array $imageWarning, string $subject): void
     {
@@ -2891,6 +2907,14 @@ final class SettingsPage
                 self::renderStatStrip(GroupsTab::syncCards());
 
                 return;
+            case 'post_list':
+                self::renderStatStrip(PostsTab::listCards());
+
+                return;
+            case 'post_sync':
+                self::renderStatStrip(PostsTab::syncCards());
+
+                return;
         }
     }
 
@@ -3016,6 +3040,15 @@ final class SettingsPage
                 'icon' => 'groups',
                 'value' => (string) GroupsTab::storedGroupCount(),
                 'label' => __('Gespeicherte Gruppen', 'churchtools-plugin'),
+            ];
+        }
+
+        // Dieselbe Regel fuer Beitraege: nur, wenn der Abgleich an ist.
+        if (PostSettings::isEnabled()) {
+            $cards[] = [
+                'icon' => 'megaphone',
+                'value' => (string) PostsTab::storedPostCount(),
+                'label' => __('Gespeicherte Beiträge', 'churchtools-plugin'),
             ];
         }
 
@@ -3165,7 +3198,7 @@ final class SettingsPage
      * Zahl-neutral formuliert, weil bin/make-pot.php keine Plurale kann.
      *
      * @param array{time: string, count: int, reasons: string}|null $warning
-     * @param 'events'|'groups'                                    $subject
+     * @param 'events'|'groups'|'posts'                            $subject
      */
     public static function renderImageWarning(?array $warning, string $subject): void
     {
@@ -3173,11 +3206,16 @@ final class SettingsPage
             return;
         }
 
-        $format = $subject === 'groups'
+        if ($subject === 'groups') {
             /* translators: 1: date/time of the group sync, 2: number of groups whose image failed, 3: reasons with counts */
-            ? __('Beim letzten Gruppen-Sync (%1$s) ließen sich nicht alle Gruppenbilder übernehmen – betroffene Gruppen: %2$d. Grund: %3$s. Die Gruppen selbst sind aktuell; jeder weitere Sync versucht es erneut.', 'churchtools-plugin')
+            $format = __('Beim letzten Gruppen-Sync (%1$s) ließen sich nicht alle Gruppenbilder übernehmen – betroffene Gruppen: %2$d. Grund: %3$s. Die Gruppen selbst sind aktuell; jeder weitere Sync versucht es erneut.', 'churchtools-plugin');
+        } elseif ($subject === 'posts') {
+            /* translators: 1: date/time of the post sync, 2: number of post images that failed, 3: reasons with counts */
+            $format = __('Beim letzten Beitrags-Sync (%1$s) ließen sich nicht alle Bilder übernehmen – betroffene Bilder: %2$d. Grund: %3$s. Die Beiträge selbst sind aktuell; jeder weitere Sync versucht es erneut.', 'churchtools-plugin');
+        } else {
             /* translators: 1: date/time of the sync, 2: number of series whose image failed, 3: reasons with counts */
-            : __('Beim letzten Sync (%1$s) ließen sich nicht alle Terminbilder übernehmen – betroffene Serien: %2$d. Grund: %3$s. Die Termine selbst sind aktuell; jeder weitere Sync versucht es erneut.', 'churchtools-plugin');
+            $format = __('Beim letzten Sync (%1$s) ließen sich nicht alle Terminbilder übernehmen – betroffene Serien: %2$d. Grund: %3$s. Die Termine selbst sind aktuell; jeder weitere Sync versucht es erneut.', 'churchtools-plugin');
+        }
         ?>
         <div class="notice notice-warning inline">
             <p>
@@ -3413,7 +3451,7 @@ final class SettingsPage
     /** @return array<int, string> */
     private static function logAreas(): array
     {
-        return [Log::AREA_EVENTS, Log::AREA_GROUPS, Log::AREA_IMAGES, Log::AREA_MIGRATION];
+        return [Log::AREA_EVENTS, Log::AREA_GROUPS, Log::AREA_POSTS, Log::AREA_IMAGES, Log::AREA_MIGRATION];
     }
 
     /** Deutsche Beschriftung einer Stufe - fuer Filter und Tabelle dieselbe Quelle. */
@@ -3434,6 +3472,7 @@ final class SettingsPage
         $labels = [
             Log::AREA_EVENTS => __('Termine', 'churchtools-plugin'),
             Log::AREA_GROUPS => __('Gruppen', 'churchtools-plugin'),
+            Log::AREA_POSTS => __('Beiträge', 'churchtools-plugin'),
             Log::AREA_IMAGES => __('Bilder', 'churchtools-plugin'),
             Log::AREA_MIGRATION => __('Migration', 'churchtools-plugin'),
         ];
@@ -3695,6 +3734,8 @@ final class SettingsPage
         </div>
 
         <?php GroupsTab::renderOverviewPanel(); ?>
+
+        <?php PostsTab::renderOverviewPanel(); ?>
 
         <?php MajorVersionNotice::renderOverviewPanel(); ?>
 
@@ -4453,6 +4494,12 @@ final class SettingsPage
                 <?php GroupsTab::renderSync(); ?>
             <?php elseif ($tab === 'group_embed') : ?>
                 <?php GroupsTab::renderEmbed(); ?>
+            <?php elseif ($tab === 'post_list') : ?>
+                <?php PostsTab::renderList(); ?>
+            <?php elseif ($tab === 'post_sync') : ?>
+                <?php PostsTab::renderSync(); ?>
+            <?php elseif ($tab === 'post_embed') : ?>
+                <?php PostsTab::renderEmbed(); ?>
             <?php elseif ($tab === 'updates') : ?>
                 <?php $this->renderUpdatesTab(); ?>
             <?php elseif ($tab === 'log') : ?>
@@ -4744,6 +4791,7 @@ final class SettingsPage
         [
             ['ctp-fetch-group-homepages', 'ctp_fetch_group_homepages', '<?php echo esc_js(wp_create_nonce('ctp_fetch_group_homepages')); ?>', '<?php echo esc_js(__('Lade…', 'churchtools-plugin')); ?>'],
             ['ctp-run-group-sync', 'ctp_run_group_sync', '<?php echo esc_js(wp_create_nonce('ctp_run_group_sync')); ?>', '<?php echo esc_js(__('Synchronisiere…', 'churchtools-plugin')); ?>'],
+            ['ctp-run-post-sync', 'ctp_run_post_sync', '<?php echo esc_js(wp_create_nonce('ctp_run_post_sync')); ?>', '<?php echo esc_js(__('Synchronisiere…', 'churchtools-plugin')); ?>'],
         ].forEach(function (entry) {
             document.getElementById(entry[0])?.addEventListener('click', function () {
                 var button = this;

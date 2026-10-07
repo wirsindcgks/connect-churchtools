@@ -1,8 +1,9 @@
 /**
  * Die Auswahlfelder der WPBakery-Elemente: „Einzelne Gruppen" im Element
  * „ChurchTools Gruppen" (WpBakeryIntegration::renderGroupPicker()) und
- * „Kalender" im Element „ChurchTools Events" (renderCalendarPicker()) -
- * dasselbe Feld, bei den Kalendern ohne Reihenfolge.
+ * „Kalender" im Element „ChurchTools Events" (renderCalendarPicker()) und
+ * „Gruppen" im Element „ChurchTools Beiträge" (renderPostGroupPicker()) -
+ * dasselbe Feld, bei Kalendern und Beitragsgruppen ohne Reihenfolge.
  *
  * WPBakery fuegt das Bearbeitungsfenster erst beim Oeffnen ins Dokument ein,
  * und womoeglich mehrmals - die Ereignisse haengen deshalb am Dokument und
@@ -67,6 +68,7 @@
 
 		window.vc.atts.ctp_group_picker = window.vc.atts.ctp_group_picker || adminLabel;
 		window.vc.atts.ctp_calendar_picker = window.vc.atts.ctp_calendar_picker || adminLabel;
+		window.vc.atts.ctp_post_group_picker = window.vc.atts.ctp_post_group_picker || adminLabel;
 
 		return true;
 	}

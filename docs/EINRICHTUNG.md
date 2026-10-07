@@ -19,7 +19,7 @@ Nach der Aktivierung erscheint im linken WordPress-Menü **ChurchTools** mit vie
 
 *ChurchTools → Einstellungen → Verbindung*: den Instanz-Namen eintragen – bei `https://musterkirche.church.tools` also `musterkirche` – und den API-Key hinterlegen.
 
-Der Key ist ein Login-Token aus ChurchTools. Welche Kalender das Plugin sieht, hängt an den Rechten des zugehörigen Zugangs. Am besten legt man in ChurchTools einen eigenen Benutzer nur für die Website an, der die übernommenen Kalender und Räume sehen darf und sonst nichts. Ein Login-Token läuft nicht ab.
+Der Key ist ein Login-Token aus ChurchTools. Welche Kalender das Plugin sieht, hängt an den Rechten des zugehörigen Zugangs. Am besten legt man in ChurchTools einen eigenen Benutzer nur für die Website an, der die übernommenen Kalender und Räume sehen darf und sonst nichts. Diesen Benutzer **nicht in Gruppen aufnehmen**: Als Mitglied sähe er auch Beiträge, die nur für die Gruppe gedacht sind. Das Plugin filtert sie heraus, aber was der Key nicht sieht, kann auch nicht versehentlich auf die Website geraten. Ein Login-Token läuft nicht ab.
 
 Ein Klick auf **Verbindung testen** prüft beides sofort, auch ungespeichert. Ohne Key fragt das Plugin ChurchTools gar nicht.
 
@@ -63,9 +63,13 @@ Mehr zu den Adressen: [Termine anzeigen → Adressen der Terminseiten](TERMINE.m
 
 *ChurchTools → Gruppen → Homepages*: **Homepages von ChurchTools laden**, die gewünschten aktivieren und speichern. Abgefragt wird mit demselben API-Key wie für die Termine. Wie oft die Gruppen abgeglichen werden, steht unter *Gruppen → Synchronisation* – unabhängig von den Terminen, standardmäßig täglich. Weiter geht es unter [Gruppen anzeigen](GRUPPEN.md).
 
+### 8. Beiträge zeigen (optional)
+
+*ChurchTools → Beiträge → Synchronisation*: **Beiträge öffentlicher Gruppen aus ChurchTools übernehmen** anhaken und speichern. Übernommen werden nur Beiträge öffentlicher Gruppen, die dort für alle sichtbar sind, die die Gruppe sehen. Standardmäßig wird stündlich abgeglichen, ebenfalls unabhängig von den Terminen. Weiter geht es unter [Beiträge anzeigen](BEITRAEGE.md).
+
 ## Wenn etwas nicht läuft
 
-Der Grund steht in der **Übersicht**: Sie zeigt für Events und Gruppen getrennt den letzten Abgleich, die gespeicherten Termine bzw. Gruppen und Fehler im Klartext. Fehlt ein Bild, das in ChurchTools hinterlegt ist, steht dort ein gelber Hinweis mit dem Grund, etwa „HTTP 401 Unauthorized (3×)“ – der Abgleich der Termine und Gruppen läuft trotzdem, und jeder weitere Lauf versucht die Bilder erneut. Gelingt das, verschwindet der Hinweis von selbst. Weitere Antworten: [Gut zu wissen](GUT-ZU-WISSEN.md). Mehr Verlauf als „letzter Fehler“ zeigt der Reiter **Einstellungen → Protokoll**: jeder Lauf mit Zeitpunkt, Dauer und Zahlen, dazu Fehler und Warnungen der letzten 30 Tage.
+Der Grund steht in der **Übersicht**: Sie zeigt für Events, Gruppen und Beiträge getrennt den letzten Abgleich, die gespeicherten Termine bzw. Gruppen und Fehler im Klartext. Fehlt ein Bild, das in ChurchTools hinterlegt ist, steht dort ein gelber Hinweis mit dem Grund, etwa „HTTP 401 Unauthorized (3×)“ – der Abgleich der Termine und Gruppen läuft trotzdem, und jeder weitere Lauf versucht die Bilder erneut. Gelingt das, verschwindet der Hinweis von selbst. Weitere Antworten: [Gut zu wissen](GUT-ZU-WISSEN.md). Mehr Verlauf als „letzter Fehler“ zeigt der Reiter **Einstellungen → Protokoll**: jeder Lauf mit Zeitpunkt, Dauer und Zahlen, dazu Fehler und Warnungen der letzten 30 Tage.
 
 ## Den API-Key außerhalb der Datenbank ablegen
 
@@ -77,7 +81,7 @@ define( 'CTP_API_KEY', '…' );
 
 oder gibt es eine Umgebungsvariable `CTP_API_KEY`, nimmt das Plugin den Key von dort, und das Feld unter *Einstellungen → Verbindung* ist gesperrt.
 
-Sonst liegt er verschlüsselt in der Datenbank, mit einem aus den WordPress-Salts (`AUTH_KEY`) abgeleiteten Schlüssel. Nach einem Serverumzug mit neuen Salts muss er einmal neu eingegeben werden; das Plugin weist im Backend darauf hin. Beim Deinstallieren wird er in jedem Fall gelöscht, auch wenn die übrigen Daten behalten werden (Schalter unter *Einstellungen → Updates*, gilt für Termine und Gruppen).
+Sonst liegt er verschlüsselt in der Datenbank, mit einem aus den WordPress-Salts (`AUTH_KEY`) abgeleiteten Schlüssel. Nach einem Serverumzug mit neuen Salts muss er einmal neu eingegeben werden; das Plugin weist im Backend darauf hin. Beim Deinstallieren wird er in jedem Fall gelöscht, auch wenn die übrigen Daten behalten werden (Schalter unter *Einstellungen → Updates*, gilt für Termine, Gruppen und Beiträge).
 
 ## Updates
 

@@ -41,7 +41,7 @@ final class UninstallTest extends TestCase
 
     public function testRemovingDataLeavesNoOptionOfThisPluginBehind(): void
     {
-        foreach (['ctp_settings', 'ctp_church_address', 'ctp_resources_fetched', 'ctp_lock_events', 'ctp_lock_groups', 'ctp_groups', 'ctp_group_settings'] as $option) {
+        foreach (['ctp_settings', 'ctp_church_address', 'ctp_resources_fetched', 'ctp_lock_events', 'ctp_lock_groups', 'ctp_lock_posts', 'ctp_groups', 'ctp_group_settings', 'ctp_posts', 'ctp_post_settings', 'ctp_post_sync_error', 'ctp_post_image_warning', 'ctp_post_last_sync'] as $option) {
             ctp_test_set_option($option, ['x']);
         }
 
@@ -49,6 +49,28 @@ final class UninstallTest extends TestCase
 
         $left = array_filter(array_keys($GLOBALS['ctp_test_options']), static fn (string $name): bool => str_starts_with($name, 'ctp_'));
         $this->assertSame([], array_values($left));
+    }
+
+    /** Die Bilder der Beitraege stehen in keiner Tabelle - nur die Zuordnung kennt sie. */
+    public function testRemovingDataDeletesThePostImages(): void
+    {
+        ctp_test_set_option('ctp_settings', ['instance' => 'musterkirche', 'keep_data_on_uninstall' => false]);
+        ctp_test_set_option('ctp_post_images', ['https://musterkirche.church.tools/images/1/a' => 401]);
+
+        require dirname(__DIR__, 2) . '/uninstall.php';
+
+        $this->assertContains(401, ctp_test_deleted_attachments());
+        $this->assertFalse(get_option('ctp_post_images'));
+    }
+
+    /** Die Liste in uninstall.php muss die der Klasse sein - die Klasse ist dort nicht geladen. */
+    public function testUninstallKnowsEveryOptionOfThePosts(): void
+    {
+        $source = (string) file_get_contents(dirname(__DIR__, 2) . '/uninstall.php');
+
+        foreach (\ChurchToolsPlugin\Posts\PostSync::optionNames() as $option) {
+            $this->assertStringContainsString("delete_option('" . $option . "')", $source);
+        }
     }
 
     /**

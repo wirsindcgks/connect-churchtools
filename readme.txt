@@ -8,17 +8,18 @@ Stable tag: 1.37.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Termine und Gruppen aus ChurchTools auf der eigenen WordPress-Website – einmal in ChurchTools gepflegt, auf der Website von selbst aktuell.
+Termine, Gruppen und Beiträge aus ChurchTools auf der eigenen WordPress-Website – einmal in ChurchTools gepflegt, auf der Website von selbst aktuell.
 
 == Description ==
 
-Das Plugin gleicht ausgewählte ChurchTools-Kalender und Gruppen-Homepages regelmäßig ab und zeigt sie in fertig gestalteten Ansichten an. Farben, Ecken und Aufbau stellt man im Backend mit Live-Vorschau ein, ganz ohne CSS.
+Das Plugin gleicht ausgewählte ChurchTools-Kalender, Gruppen-Homepages und auf Wunsch die Beiträge öffentlicher Gruppen regelmäßig ab und zeigt sie in fertig gestalteten Ansichten an. Farben, Ecken und Aufbau stellt man im Backend mit Live-Vorschau ein, ganz ohne CSS.
 
 * **Termine automatisch übernehmen**: Serien kommen als einzelne Termine an, abgesagte verschwinden wieder. Vergangene Termine räumen sich samt Bildern selbst weg.
 * **Drei Ansichten**: Liste, Raster und „Nächster Termin“. Einbinden per Gutenberg-Block, WPBakery-Element oder Shortcode.
 * **Schnell finden**: Eventfinder mit Themen- und Zeitraum-Knöpfen, Suche und Monatsüberschriften.
 * **Termindetails** als Popup oder als eigene Seite, auf Wunsch zum Teilen, als Kalenderdatei oder als Kalender-Abo.
 * **Gruppen statt iframe**: die Gruppen einer Gruppen-Homepage in derselben Optik, mit Treffzeit und freien Plätzen, auf Wunsch mit Gruppenfinder.
+* **Beiträge als Neuigkeiten**: die Beiträge öffentlicher Gruppen als Kacheln in der Optik der Gruppen, mit ganzem Text und allen Bildern im Popup. Ausgeschaltet, bis man sie einschaltet.
 * **Gut für Suchmaschinen**: eigene Adresse je Termin, strukturierte Daten und Sitemap, verträglich mit Yoast SEO und Rank Math.
 * **Datensparsam**: Bilder werden importiert, Besucher laden nichts von der ChurchTools-Domain. Die Teilen-Knöpfe kommen ohne Skript von Drittanbietern und ohne Zählpixel aus. Für die Datenschutzerklärung liegt ein Textvorschlag bereit.
 * **Sicher angebunden**: Der API-Key liegt verschlüsselt in der Datenbank oder als Konstante `CTP_API_KEY` in `wp-config.php`.
@@ -95,7 +96,7 @@ Alternativ zum Kalenderfilter steht der **Eventfinder** (`finder="1"`) zur Verf�
 
 Block „ChurchTools Events“ einfügen und in der Seitenleiste unter „Auswahl“ die Kalender (Checkbox-Liste der unter Events → Kalender geladenen Kalender), unter „Darstellung“ Ansicht, Spaltenzahl (nur bei Raster), maximale Anzahl der Termine, Klickverhalten sowie (außer bei „Nächster Termin“) Eventfinder, Kalenderfilter, Suchleiste, Monatsgruppierung, Nachladen-Button und Zeitraum pro Seite festlegen.
 
-Beide Blöcke – „ChurchTools Events“ und „ChurchTools Gruppen“ – lassen sich in der Werkzeugleiste auf „Weite Breite“ oder „Volle Breite“ stellen, sofern das Theme das anbietet. Das ist der Weg zu mehr Spalten, wenn der Inhaltsbereich des Themes schmal ist. Ein Shortcode im Shortcode-Block bekommt dieselbe Breite, wenn er in einem Gruppe-Block mit weiter Breite steht.
+Die Blöcke „ChurchTools Events“, „ChurchTools Gruppen“ und „ChurchTools Beiträge“ lassen sich in der Werkzeugleiste auf „Weite Breite“ oder „Volle Breite“ stellen, sofern das Theme das anbietet. Das ist der Weg zu mehr Spalten, wenn der Inhaltsbereich des Themes schmal ist. Ein Shortcode im Shortcode-Block bekommt dieselbe Breite, wenn er in einem Gruppe-Block mit weiter Breite steht.
 
 = WPBakery-Element =
 
@@ -124,6 +125,27 @@ Abgefragt wird mit dem API-Key aus „Einstellungen → Verbindung“. Welche Gr
 Jede Kachel zeigt Bild, Name, Wochentag und Treffzeit, darunter die Zielgruppe (ausblendbar mit dem Kalendernamen), sowie die ersten 24 Wörter der Beschreibung mit ihren Absätzen und Zeilenumbrüchen (in der hervorgehobenen Ansicht wie bei „Nächster Termin“ die ersten 20 Wörter auf höchstens drei Zeilen, sodass das Bild die Höhe der Kachel bestimmt). Ein Klick auf eine Kachel – im Raster wie in der hervorgehobenen Ansicht – öffnet die Gruppe im Popup mit dem ganzen Text; das Bild darin folgt dem Bildformat aus dem Design-Tab. Der Gruppenfinder filtert im Browser, ohne die Seite neu zu laden. Welche Knöpfe er zeigt, entscheiden die Gruppen-Homepage – nur dort eingeschaltete Filter – und die Gruppen selbst: Ein Knopf erscheint nur, wenn er die Liste eingrenzt, eine Reihe ohne solchen Knopf fällt weg. Die Zielgruppe „Jeder“ ist kein eigener Knopf, sondern passt zu jeder Auswahl, ebenso eine Gruppe ohne Zielgruppe; bei Kategorie und Wochentag erscheinen nur Gruppen mit genau diesem Wert. Die Suche findet Name, Kategorie, Wochentag, Zielgruppe und Beschreibung. Hat die Gruppe eine Höchstzahl, steht daneben, wie viele Plätze noch frei sind – bei einer vollen Gruppe „Ausgebucht“. Der Button „In ChurchTools ansehen“ führt zur Gruppe in ChurchTools, wo man sich anmeldet; nur dieser Button führt aus der Website hinaus, ein Klick auf die Kachel bleibt im Popup. Vorlage, Farben, Ecken, Bildformat, Reihenfolge und ausgeblendete Felder unter „Einstellungen → Design“ gelten auch hier; hat nur ein Teil der Gruppen ein Bild, bekommen die übrigen die Farbfläche, damit die Reihen fluchten.
 
 Die Gruppen haben ein eigenes „Sync-Intervall“ unter Gruppen → Synchronisation, unabhängig vom Termin-Sync: stündlich, zweimal täglich, täglich (Standard) oder wöchentlich – dieselbe Auswahl wie bei den Terminen. Die freien Plätze sind so alt wie der letzte Abgleich – die Anmeldung in ChurchTools zeigt immer den echten Stand. „Jetzt synchronisieren“ gleicht sofort ab. Liefert eine Homepage plötzlich keine Gruppen mehr, bleiben die zuletzt geladenen drei Läufe lang stehen, bevor sie verschwinden: So nimmt eine kurze Störung der Website nicht die Gruppen. Beim Deaktivieren einer Homepage entfernt der nächste Lauf ihre Gruppen samt importierter Bilder.
+
+= Beiträge =
+
+Der Bereich „Beiträge“ übernimmt die Beiträge öffentlicher Gruppen aus ChurchTools als Neuigkeiten für die Website. Er ist ausgeschaltet, bis unter Beiträge → Synchronisation „Beiträge öffentlicher Gruppen aus ChurchTools übernehmen“ angehakt und gespeichert ist; solange fragt das Plugin ChurchTools nicht nach Beiträgen. Der erste Abgleich startet nach dem Speichern von selbst. Was übernommen ist, steht unter Beiträge → Beitragsliste, fertige Shortcodes unter Beiträge → Einbinden.
+
+`[ctp_posts]`
+`[ctp_posts layout="featured" limit="1"]`
+`[ctp_posts groups="31,44" columns="2" limit="4"]`
+
+* `groups` – nur Beiträge dieser Gruppen, nach ID, kommagetrennt. Leer = alle öffentlichen Gruppen. Die IDs stehen unter Beiträge → Beitragsliste.
+* `limit` – wie viele Beiträge erscheinen, die neuesten zuerst (Standard: 6). `0` = alle gespeicherten, höchstens 30.
+* `layout` – `grid` (Kachelraster mit Auszug, Standard) oder `featured` (je Beitrag eine große Kachel, Bild daneben).
+* `columns` – höchstens so viele Spalten, 2–6 (Standard: 3); nur so viele, wie in den Inhaltsbereich passen. Nur bei `grid`.
+
+Im Block „ChurchTools Beiträge“ und im WPBakery-Element „ChurchTools Beiträge“ stehen dieselben Möglichkeiten zur Auswahl: die Gruppen, aus denen gerade Beiträge vorliegen, als Liste zum Anhaken (leer = alle), die Ansicht, die Spaltenzahl und die Anzahl.
+
+Übernommen werden nur Beiträge, die ChurchTools ausdrücklich als öffentlich führt: aus einer Gruppe mit der Sichtbarkeit „öffentlich“ und für alle sichtbar, die die Gruppe sehen. Beiträge nur für Gruppenmitglieder, Beiträge aus internen, eingeschränkten oder versteckten Gruppen, abgelaufene und gesperrte Beiträge sowie Beiträge anderer ChurchTools-Instanzen bleiben draußen – auch wenn der API-Key sie sehen darf. Übernommen werden Titel, Text, Veröffentlichungs- und Ablaufdatum, Gruppe und bis zu vier Bilder je Beitrag; Verfasser, Kommentare und Reaktionen bewusst nicht. Vorgehalten werden die neuesten 30.
+
+Jede Kachel zeigt das erste Bild, den Titel, das Datum (ausblendbar mit „Datum“), die Gruppe (ausblendbar mit dem Kalendernamen) und einen Auszug. Ein Klick öffnet den ganzen Beitrag im Popup, die weiteren Bilder unter dem Text. Einen Button nach ChurchTools gibt es nicht: Ein Beitrag hat dort keine öffentliche Seite. Vorlage, Farben, Ecken und Bildformat unter „Einstellungen → Design“ gelten auch hier.
+
+Das „Sync-Intervall“ unter Beiträge → Synchronisation ist unabhängig von Terminen und Gruppen: stündlich (Standard), zweimal täglich, täglich oder wöchentlich. Ein Beitrag, der in ChurchTools abläuft, verschwindet auf der Website sofort, nicht erst mit dem nächsten Lauf. Liefert ChurchTools plötzlich gar keine Beiträge mehr, bleiben die zuletzt geladenen drei Läufe lang stehen. Wer den Abgleich ausschaltet, entfernt mit dem nächsten Lauf die Beiträge samt Bildern.
 
 = Adresse der Terminseite =
 
@@ -216,7 +238,7 @@ Wer das vermeiden oder den Key gar nicht erst in der Datenbank haben will, träg
 
 = Welche Rechte braucht der API-Key? =
 
-Nur Leserechte: die Kalender, die übernommen werden sollen, und – falls Räume angezeigt werden – „Ressource sehen“ für diese Räume. Am besten ist ein eigener ChurchTools-Benutzer nur für die Website: Ein Login-Token läuft nicht ab und darf alles, was seine Person darf. Ohne Key fragt das Plugin ChurchTools nicht ab.
+Nur Leserechte: die Kalender, die übernommen werden sollen, und – falls Räume angezeigt werden – „Ressource sehen“ für diese Räume. Für Beiträge braucht er keine eigenen Rechte: Er sieht die öffentlichen Gruppen wie jeder Besucher, und was er darüber hinaus sehen dürfte, filtert das Plugin heraus. Den Benutzer deshalb nicht in Gruppen aufnehmen – als Mitglied sähe er auch Beiträge, die nur für die Gruppe gedacht sind, und was der Key gar nicht sieht, kann auch nicht versehentlich auf die Website geraten. Am besten ist ein eigener ChurchTools-Benutzer nur für die Website: Ein Login-Token läuft nicht ab und darf alles, was seine Person darf. Ohne Key fragt das Plugin ChurchTools nicht ab.
 
 = Werden die Termine von Suchmaschinen gefunden? =
 
@@ -269,7 +291,9 @@ Bilder brauchen nichts weiter: Das Bild im Popup trägt bereits `skip-lazy` und 
 
 Das Plugin dupliziert Termindaten der ausgewählten ChurchTools-Kalender lokal in eine eigene Datenbanktabelle auf dem WordPress-Server (Titel, Untertitel, Zeitraum, Ort, Beschreibung, Kalenderzugehörigkeit, dazu die übrige Antwort von ChurchTools zum Termin als Rohdaten – ohne Verweise auf Personen wie „angelegt von“) und importiert verknüpfte Bilder in die WordPress-Medienbibliothek, statt sie von ChurchTools aus einzubinden (Hotlinking) – Website-Besucher laden Bilder dadurch ausschließlich vom eigenen Server, nicht von ChurchTools. Vergangene Termine werden nach der eingestellten Aufbewahrungsfrist automatisch wieder gelöscht (siehe Events → Synchronisation).
 
-Für die Gruppenliste speichert das Plugin je aktiver Gruppen-Homepage Name, Beschreibung, Kategorie, Wochentag, Treffzeit, Zielgruppe, Höchst- und Mitgliederzahl der dort öffentlich gezeigten Gruppen und importiert deren Bilder in die Medienbibliothek. Namen von Mitgliedern oder Leitern werden nicht übernommen. Wird eine Homepage deaktiviert, entfernt der nächste Abgleich ihre Gruppen und Bilder wieder. Die Bilder sind Kopien: Entfernt die Gemeinde ein Gruppenbild in ChurchTools, verschwindet es auf der Website erst mit dem nächsten Gruppen-Abgleich (je nach Intervall bis zu einer Woche) – und aus bereits erstellten Backups der Website nicht.
+Für die Gruppenliste speichert das Plugin je aktiver Gruppen-Homepage Name, Beschreibung, Kategorie, Wochentag, Treffzeit, Zielgruppe, Höchst- und Mitgliederzahl der dort öffentlich gezeigten Gruppen und importiert deren Bilder in die Medienbibliothek. Namen von Mitgliedern oder Leitern werden nicht übernommen. Wird eine Homepage deaktiviert, entfernt der nächste Abgleich ihre Gruppen und Bilder wieder.
+
+Ist der Abgleich der Beiträge eingeschaltet, speichert das Plugin die neuesten 30 Beiträge öffentlicher Gruppen: Titel, Text, Veröffentlichungs- und Ablaufdatum, Name der Gruppe und bis zu vier Bilder je Beitrag (in der Medienbibliothek). Verfasser, Kommentare und Reaktionen werden nicht übernommen. Beitragstexte sind Freitext und können Namen enthalten, die jemand hineingeschrieben hat – dasselbe wie bei den Beschreibungen der Termine unten. Die Bilder sind Kopien: Entfernt die Gemeinde ein Gruppenbild in ChurchTools, verschwindet es auf der Website erst mit dem nächsten Gruppen-Abgleich (je nach Intervall bis zu einer Woche) – und aus bereits erstellten Backups der Website nicht.
 
 = Können Ort/Beschreibung personenbezogene Daten enthalten? =
 

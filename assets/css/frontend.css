@@ -1214,6 +1214,32 @@
     order: var(--ctp-order-time);
 }
 
+/*
+ * Gruppe einer Beitragskachel: haengt am Datum, wie die Zielgruppe an der
+ * Uhrzeit - direkt darunter, wohin das Datum auch gezogen wird.
+ */
+.ctp-events__meta-item--group {
+    order: var(--ctp-order-date);
+}
+
+/*
+ * Die weiteren Bilder eines Beitrags im Popup, unter dem Text. Ohne
+ * Beschnitt: Es sind oft Flyer, deren Text sonst abgeschnitten waere.
+ */
+.ctp-posts__gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+    gap: var(--ctp-gap, 1rem);
+    margin-top: 1rem;
+}
+
+.ctp-posts__gallery img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--ctp-radius, 0);
+}
+
 @media (max-width: 480px) {
     .ctp-events__item {
         align-items: flex-start;

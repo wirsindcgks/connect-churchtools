@@ -954,12 +954,16 @@ final class SyncEngine
      */
     private static function imageFailureMessage(string $filePrefix, string $reason): string
     {
-        $subject = str_starts_with($filePrefix, 'churchtools-group-')
-            ? __('Gruppenbild', 'churchtools-plugin')
-            : __('Terminbild', 'churchtools-plugin');
+        if (str_starts_with($filePrefix, 'churchtools-group-')) {
+            $subject = __('Gruppenbild', 'churchtools-plugin');
+        } elseif (str_starts_with($filePrefix, 'churchtools-post-')) {
+            $subject = __('Beitragsbild', 'churchtools-plugin');
+        } else {
+            $subject = __('Terminbild', 'churchtools-plugin');
+        }
 
         return sprintf(
-            /* translators: 1: "Terminbild" or "Gruppenbild", 2: the underlying error reason */
+            /* translators: 1: "Terminbild", "Gruppenbild" or "Beitragsbild", 2: the underlying error reason */
             __('%1$s konnte nicht importiert werden: %2$s', 'churchtools-plugin'),
             $subject,
             $reason

@@ -42,6 +42,7 @@ final class Log
 
     public const AREA_EVENTS = 'events';
     public const AREA_GROUPS = 'groups';
+    public const AREA_POSTS = 'posts';
     public const AREA_IMAGES = 'images';
     public const AREA_MIGRATION = 'migration';
 
@@ -85,7 +86,7 @@ final class Log
          * anbietet.
          *
          * @param string $level   error|warning|info
-         * @param string $area    events|groups|images|migration
+         * @param string $area    events|groups|posts|images|migration
          * @param string $message
          * @param array<string, mixed> $context bereits bereinigt, siehe sanitizeContext()
          */

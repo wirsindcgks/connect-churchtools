@@ -31,6 +31,8 @@ namespace ChurchToolsPlugin\Tests\Integrations {
     use ChurchToolsPlugin\Groups\GroupSettings;
     use ChurchToolsPlugin\Groups\GroupSync;
     use ChurchToolsPlugin\Integrations\WpBakeryIntegration;
+    use ChurchToolsPlugin\Posts\PostSettings;
+    use ChurchToolsPlugin\Posts\PostSync;
     use ChurchToolsPlugin\Settings;
     use PHPUnit\Framework\TestCase;
 
@@ -71,7 +73,7 @@ namespace ChurchToolsPlugin\Tests\Integrations {
         {
             (new WpBakeryIntegration())->mapShortcode();
 
-            foreach (['ctp_events', 'ctp_groups'] as $base) {
+            foreach (['ctp_events', 'ctp_groups', 'ctp_posts'] as $base) {
                 foreach ($GLOBALS['ctp_test_vc_map'][$base]['params'] as $param) {
                     $this->assertArrayNotHasKey('group', $param, $base . ': ' . $param['param_name']);
                 }
@@ -124,6 +126,63 @@ namespace ChurchToolsPlugin\Tests\Integrations {
             $this->assertStringContainsString('value="" />', $html);
             $this->assertStringContainsString('Noch keine Kalender geladen.', $html);
             $this->assertStringNotContainsString('ctp-wpb-picker__empty" hidden', $html);
+        }
+
+        /**
+         * Das Beitrags-Element: dieselben Felder wie Shortcode und Block,
+         * die Gruppen in derselben Auswahl wie die Kalender - ohne
+         * Reihenfolge, Beitraege stehen nach Datum.
+         */
+        public function testThePostsElementOffersGroupsLayoutColumnsAndLimit(): void
+        {
+            ctp_test_set_current_time('2026-10-07 12:00:00');
+            ctp_test_set_option(PostSettings::OPTION_KEY, ['enabled' => true]);
+            ctp_test_set_option(PostSync::DATA_OPTION, ['posts' => [
+                ['id' => 1, 'title' => 'A', 'group_id' => 44, 'group_name' => 'Seniorenarbeit', 'expires' => null, 'images' => []],
+                ['id' => 2, 'title' => 'B', 'group_id' => 31, 'group_name' => 'Jugend', 'expires' => null, 'images' => []],
+            ]]);
+            (new WpBakeryIntegration())->mapShortcode();
+
+            $settings = $GLOBALS['ctp_test_vc_map']['ctp_posts'];
+            $params = array_column($settings['params'], null, 'param_name');
+
+            $this->assertSame(['groups', 'layout', 'columns', 'limit'], array_keys($params));
+            $this->assertSame(WpBakeryIntegration::POST_GROUP_PICKER_TYPE, $params['groups']['type']);
+            $this->assertSame(['Jugend' => '31', 'Seniorenarbeit' => '44'], $params['groups']['ctp_choices']);
+            $this->assertSame('Seniorenarbeit, Jugend', (new WpBakeryIntegration())->adminLabelValue('44,31', $params['groups'], $settings));
+            $this->assertTrue($params['limit']['save_always']);
+
+            $html = WpBakeryIntegration::renderPostGroupPicker(['param_name' => 'groups'], '44,99');
+            $this->assertStringContainsString('ctp-wpb-picker--unordered', $html);
+            $this->assertStringContainsString('#99 (nicht mehr verfügbar)', $html);
+        }
+
+        /**
+         * WPBakery schreibt die Beschriftung ungefiltert in den Baustein, und
+         * Gruppen- wie Homepage-Namen pflegen in ChurchTools auch Leute ohne
+         * Rechte in WordPress (Sicherheits-Review 2026-10-07).
+         */
+        public function testTheElementLabelIsEscaped(): void
+        {
+            ctp_test_set_current_time('2026-10-07 12:00:00');
+            ctp_test_set_option(PostSettings::OPTION_KEY, ['enabled' => true]);
+            ctp_test_set_option(PostSync::DATA_OPTION, ['posts' => [
+                ['id' => 1, 'title' => 'A', 'group_id' => 44, 'group_name' => '<img src=x onerror=alert(1)>', 'expires' => null, 'images' => []],
+            ]]);
+            ctp_test_set_option(GroupSettings::OPTION_KEY, ['homepages' => [
+                9 => ['name' => '<script>alert(2)</script>', 'hash' => 'AbC123', 'enabled' => true],
+            ]]);
+            (new WpBakeryIntegration())->mapShortcode();
+            $integration = new WpBakeryIntegration();
+
+            $posts = $GLOBALS['ctp_test_vc_map']['ctp_posts'];
+            $groupsParam = array_column($posts['params'], null, 'param_name')['groups'];
+            $groups = $GLOBALS['ctp_test_vc_map']['ctp_groups'];
+            $homepageParam = array_column($groups['params'], null, 'param_name')['homepage'];
+
+            $this->assertSame('&lt;img src=x onerror=alert(1)&gt;', $integration->adminLabelValue('44', $groupsParam, $posts));
+            $this->assertSame('&lt;script&gt;alert(2)&lt;/script&gt;', $integration->adminLabelValue('<script>alert(2)</script>', $homepageParam, $groups));
+            $this->assertSame('&lt;b&gt;', $integration->adminLabelValue('<b>', ['param_name' => 'calendar', 'ctp_choices' => []], $GLOBALS['ctp_test_vc_map']['ctp_events']));
         }
 
         /** Die Gruppenauswahl behaelt ihre Reihenfolge. */
