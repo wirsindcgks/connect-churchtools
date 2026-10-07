@@ -66,7 +66,7 @@ Nicht zugesagt: konkrete Abstände, Größen und Farbwerte, die `--ctp-order-*`-
 
 ### Hooks
 
-- `ctp_log` (seit 1.35.0, der erste Hook, den dieses Plugin anbietet): feuert bei jedem Protokolleintrag (`Log::error()`/`warning()`/`info()`) mit `(string $level, string $area, string $message, array $context)`. `$level` ist eine von `error`, `warning`, `info`; `$area` eine von `events`, `groups`, `images`, `migration`; `$context` ist bereits bereinigt – kein API-Key, keine Personendaten, keine Adresse mit Abfrageteil. Eine Aktion, kein Filter: Ein angehängter Callback bekommt keinen Rückgabewert ausgewertet.
+- `ctp_log` (seit 1.35.0, der erste Hook, den dieses Plugin anbietet): feuert bei jedem Protokolleintrag (`Log::error()`/`warning()`/`info()`) mit `(string $level, string $area, string $message, array $context)`. `$level` ist eine von `error`, `warning`, `info`; `$area` eine von `events`, `groups`, `posts` (seit 1.38.0), `images`, `migration`; `$context` ist bereits bereinigt – kein API-Key, keine Personendaten, keine Adresse mit Abfrageteil. Eine Aktion, kein Filter: Ein angehängter Callback bekommt keinen Rückgabewert ausgewertet.
 
 ## Was nicht zugesagt ist
 

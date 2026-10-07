@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace ChurchToolsPlugin;
 
 use ChurchToolsPlugin\Admin\GroupsTab;
+use ChurchToolsPlugin\Admin\PostsTab;
 use ChurchToolsPlugin\Admin\MajorVersionNotice;
 use ChurchToolsPlugin\Admin\PrivacyPolicy;
 use ChurchToolsPlugin\Admin\SettingsPage;
 use ChurchToolsPlugin\Admin\SyncHealthNotice;
 use ChurchToolsPlugin\Blocks\EventListBlock;
 use ChurchToolsPlugin\Blocks\GroupListBlock;
+use ChurchToolsPlugin\Blocks\PostListBlock;
 use ChurchToolsPlugin\Db\Installer;
 use ChurchToolsPlugin\Frontend\Assets;
 use ChurchToolsPlugin\Frontend\CardImage;
@@ -22,6 +24,7 @@ use ChurchToolsPlugin\Frontend\EventsEndpoint;
 use ChurchToolsPlugin\Frontend\Shortcode;
 use ChurchToolsPlugin\Groups\GroupSync;
 use ChurchToolsPlugin\Integrations\WpBakeryIntegration;
+use ChurchToolsPlugin\Posts\PostSync;
 use ChurchToolsPlugin\Sync\ImageSizeBackfill;
 use ChurchToolsPlugin\Sync\RetentionCleanup;
 use ChurchToolsPlugin\Sync\SyncEngine;
@@ -54,6 +57,7 @@ final class Plugin
         if (is_admin()) {
             (new SettingsPage())->register();
             (new GroupsTab())->register();
+            (new PostsTab())->register();
             (new SyncHealthNotice())->register();
             (new PrivacyPolicy())->register();
             (new MajorVersionNotice())->register();
@@ -64,6 +68,7 @@ final class Plugin
         (new EventsEndpoint())->register();
         (new EventListBlock())->register();
         (new GroupListBlock())->register();
+        (new PostListBlock())->register();
         (new WpBakeryIntegration())->register();
 
         EventDetailPage::registerHooks();
@@ -73,6 +78,7 @@ final class Plugin
         CardImage::registerHooks();
         SyncEngine::registerHooks();
         GroupSync::registerHooks();
+        PostSync::registerHooks();
         RetentionCleanup::registerHooks();
         ImageSizeBackfill::registerHooks();
         GitHubUpdateChecker::register();

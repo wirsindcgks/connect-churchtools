@@ -7,6 +7,8 @@ namespace ChurchToolsPlugin\Db;
 use ChurchToolsPlugin\Groups\GroupSettings;
 use ChurchToolsPlugin\Groups\GroupSync;
 use ChurchToolsPlugin\Log;
+use ChurchToolsPlugin\Posts\PostSettings;
+use ChurchToolsPlugin\Posts\PostSync;
 use ChurchToolsPlugin\Security\ApiKey;
 use ChurchToolsPlugin\Settings;
 use ChurchToolsPlugin\Sync\SyncEngine;
@@ -46,6 +48,10 @@ final class Installer
         // und ohne sofortigen Lauf.
         add_action('update_option_' . GroupSettings::OPTION_KEY, [self::class, 'onGroupSettingsUpdated'], 10, 2);
         add_action('add_option_' . GroupSettings::OPTION_KEY, [self::class, 'onGroupSettingsAdded'], 10, 2);
+
+        // Die Beitraege ebenso, aus demselben Grund.
+        add_action('update_option_' . PostSettings::OPTION_KEY, [self::class, 'onPostSettingsUpdated'], 10, 2);
+        add_action('add_option_' . PostSettings::OPTION_KEY, [self::class, 'onPostSettingsAdded'], 10, 2);
 
         // Self-heal on any admin page load: a cron event can go missing
         // entirely (a plugin that flushes the cron array, a partially restored
@@ -114,6 +120,53 @@ final class Installer
     public static function onGroupSettingsAdded(string $option, $value): void
     {
         self::onGroupSettingsUpdated(null, $value);
+    }
+
+    /**
+     * Wie onGroupSettingsUpdated(): neu planen, wenn sich Schalter oder
+     * Intervall aendern, sofort laufen, wenn sich der Schalter aendert - beim
+     * Einschalten holt der Lauf die Beitraege, beim Ausschalten raeumt er sie
+     * samt Bildern ab.
+     *
+     * @param mixed $oldValue
+     * @param mixed $newValue
+     */
+    public static function onPostSettingsUpdated($oldValue, $newValue): void
+    {
+        $change = self::postSettingsChange($oldValue, $newValue);
+
+        if ($change['reschedule']) {
+            self::ensureSchedules();
+        }
+
+        if ($change['sync_now']) {
+            wp_schedule_single_event(time() + 10, PostSync::HOOK);
+        }
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public static function onPostSettingsAdded(string $option, $value): void
+    {
+        self::onPostSettingsUpdated(null, $value);
+    }
+
+    /**
+     * @param mixed $oldValue
+     * @param mixed $newValue
+     *
+     * @return array{reschedule: bool, sync_now: bool}
+     */
+    public static function postSettingsChange($oldValue, $newValue): array
+    {
+        $enabled = static fn ($settings): bool => is_array($settings) && !empty($settings['enabled']);
+        $interval = static fn ($settings): string => is_array($settings) ? (string) ($settings['sync_interval'] ?? '') : '';
+
+        return [
+            'reschedule' => $interval($oldValue) !== $interval($newValue) || $enabled($oldValue) !== $enabled($newValue),
+            'sync_now' => $enabled($oldValue) !== $enabled($newValue),
+        ];
     }
 
     /**
@@ -236,6 +289,21 @@ final class Installer
         } else {
             self::scheduleIfNeeded(GroupSync::HOOK, $groupSettings['sync_interval']);
         }
+
+        // Ohne eingeschalteten Schalter kein Zeitplan fuer Beitraege - und nur
+        // den wiederkehrenden abraeumen, aus demselben Grund wie oben: Der
+        // Einzellauf nach dem Ausschalten raeumt Beitraege und Bilder ab.
+        $postSettings = PostSettings::get();
+
+        if (!PostSettings::isEnabled($postSettings)) {
+            $event = wp_get_scheduled_event(PostSync::HOOK);
+
+            if ($event !== false && $event->schedule !== false) {
+                wp_clear_scheduled_hook(PostSync::HOOK);
+            }
+        } else {
+            self::scheduleIfNeeded(PostSync::HOOK, $postSettings['sync_interval']);
+        }
     }
 
     /**
@@ -281,6 +349,7 @@ final class Installer
         wp_clear_scheduled_hook('ctp_run_sync');
         wp_clear_scheduled_hook('ctp_run_retention_cleanup');
         wp_clear_scheduled_hook(GroupSync::HOOK);
+        wp_clear_scheduled_hook(PostSync::HOOK);
 
         // Der Streak leerer API-Antworten zaehlt *beobachtete* Laeufe. Waehrend
         // das Plugin aus war, ist keiner gelaufen - bliebe der Zaehler stehen,

@@ -9,6 +9,15 @@ final class Assets
     private const STYLE_HANDLE = 'ctp-frontend';
     private const SCRIPT_HANDLE = 'ctp-frontend-filter';
 
+    /**
+     * Jeder Shortcode, den Shortcode::register() anmeldet. Beim Bau der
+     * Beitraege fehlte `ctp_posts` hier: Die Seite zeigte Kacheln ohne
+     * Stylesheet, und ein Klick fuehrte nach ChurchTools statt ins Popup -
+     * aufgefallen erst im Browser (2026-10-07). AssetsTest haelt die Liste
+     * seitdem mit Shortcode::TAGS gleich.
+     */
+    public const SHORTCODES = Shortcode::TAGS;
+
     public function register(): void
     {
         add_action('wp_enqueue_scripts', [$this, 'maybeEnqueue']);
@@ -65,7 +74,18 @@ final class Assets
 
         $post = get_post();
 
-        return $post instanceof \WP_Post
-            && (has_shortcode($post->post_content, 'ctp_events') || has_shortcode($post->post_content, 'ctp_groups'));
+        return $post instanceof \WP_Post && self::contentUsesShortcode($post->post_content);
+    }
+
+    /** Ob ein Seiteninhalt einen der Shortcodes des Plugins enthaelt. */
+    public static function contentUsesShortcode(string $content): bool
+    {
+        foreach (self::SHORTCODES as $tag) {
+            if (has_shortcode($content, $tag)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

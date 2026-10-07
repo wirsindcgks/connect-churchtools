@@ -9,6 +9,8 @@ use ChurchToolsPlugin\Db\LogRepository;
 use ChurchToolsPlugin\Groups\GroupSettings;
 use ChurchToolsPlugin\Groups\GroupSync;
 use ChurchToolsPlugin\Log;
+use ChurchToolsPlugin\Posts\PostSettings;
+use ChurchToolsPlugin\Posts\PostSync;
 use ChurchToolsPlugin\Security\ApiKey;
 use ChurchToolsPlugin\Settings;
 use ChurchToolsPlugin\Sync\SyncEngine;
@@ -28,7 +30,7 @@ use ChurchToolsPlugin\Sync\SyncEngine;
  *   - Der letzte erfolgreiche Lauf liegt deutlich länger zurück, als das
  *     eingestellte Intervall erlaubt
  *
- * problem() und groupProblem() sind öffentlich, weil die Übersicht und die
+ * problem(), groupProblem() und postProblem() sind öffentlich, weil die Übersicht und die
  * Reiter „Synchronisation“ dieselbe Auskunft rendern – ohne das stünde der
  * stehengebliebene Sync ausgerechnet auf der Seite nicht, auf die dieser
  * Hinweis verlinkt.
@@ -79,6 +81,12 @@ final class SyncHealthNotice
             self::printNotice($groupProblem, SettingsPage::tabUrl('group_sync'), __('Zur Synchronisation', 'churchtools-plugin'));
         }
 
+        $postProblem = self::isShownOnPage('post_sync') ? null : self::postProblem();
+
+        if ($postProblem !== null) {
+            self::printNotice($postProblem, SettingsPage::tabUrl('post_sync'), __('Zur Synchronisation', 'churchtools-plugin'));
+        }
+
         // Ergaenzend zu den beiden Befunden oben, nicht an ihre Stelle: Ein
         // Lauf kann gelingen (kein Fehler, nicht ueberfaellig) und trotzdem
         // seit dem letzten Erfolg Warnungen hinterlassen haben (Raumbuchung,
@@ -94,6 +102,12 @@ final class SyncHealthNotice
 
         if ($groupWarnings !== null) {
             self::printNotice($groupWarnings, SettingsPage::tabUrl('log', ['area' => Log::AREA_GROUPS]), __('Zum Protokoll', 'churchtools-plugin'));
+        }
+
+        $postWarnings = self::isShownOnPage('log') ? null : self::postWarnings();
+
+        if ($postWarnings !== null) {
+            self::printNotice($postWarnings, SettingsPage::tabUrl('log', ['area' => Log::AREA_POSTS]), __('Zum Protokoll', 'churchtools-plugin'));
         }
     }
 
@@ -186,6 +200,66 @@ final class SyncHealthNotice
     }
 
     /**
+     * Dasselbe wie groupProblem() fuer die Beitraege: Fehler, fehlender
+     * Zeitplan, ueberfaellig - nach derselben Schwelle. Ausgeschaltet gibt es
+     * keinen Zeitplan (siehe Installer::ensureSchedules()) und nichts zu melden.
+     *
+     * @return array{type: string, message: string}|null
+     */
+    public static function postProblem(): ?array
+    {
+        $settings = PostSettings::get();
+
+        if (!PostSettings::isEnabled($settings)) {
+            return null;
+        }
+
+        $error = PostSync::getLastError();
+
+        if ($error !== null) {
+            return [
+                'type' => 'error',
+                'message' => sprintf(
+                    /* translators: %s: error message from the last failed post sync */
+                    __('Die letzte Synchronisation der Beiträge ist fehlgeschlagen: %s', 'churchtools-plugin'),
+                    self::shorten($error['message'])
+                ),
+            ];
+        }
+
+        $nextRun = wp_next_scheduled(PostSync::HOOK);
+        if ($nextRun === false) {
+            return [
+                'type' => 'error',
+                'message' => __('Für die Synchronisation der Beiträge ist kein Zeitplan hinterlegt – es werden derzeit keine Beiträge mehr aktualisiert.', 'churchtools-plugin'),
+            ];
+        }
+
+        $lastSync = self::timestamp((string) get_option(PostSync::LAST_SYNC_OPTION, ''));
+        $allowed = self::staleThreshold(Installer::intervalSeconds($settings['sync_interval']));
+
+        switch (self::stalenessState($lastSync, (int) $nextRun, time(), $allowed)) {
+            case 'never':
+                return [
+                    'type' => 'warning',
+                    'message' => __('Die Beiträge wurden noch nie synchronisiert, und der geplante Lauf ist überfällig – vermutlich läuft WP-Cron auf dieser Website nicht.', 'churchtools-plugin'),
+                ];
+
+            case 'stale':
+                return [
+                    'type' => 'warning',
+                    'message' => sprintf(
+                        /* translators: %s: human-readable time difference, e.g. "3 days" */
+                        __('Die letzte erfolgreiche Synchronisation der Beiträge liegt %s zurück – die angezeigten Beiträge könnten veraltet sein.', 'churchtools-plugin'),
+                        human_time_diff((int) $lastSync, time())
+                    ),
+                ];
+        }
+
+        return null;
+    }
+
+    /**
      * Warnungen seit dem letzten erfolgreichen Termin-Sync - ergaenzend zu
      * eventProblem() oben, nicht an dessen Stelle: Ein Lauf, der gelingt,
      * kann trotzdem in Log::warning() gelandete Nebenbefunde hinterlassen
@@ -215,6 +289,18 @@ final class SyncHealthNotice
         }
 
         return self::warningsSince(Log::AREA_GROUPS, (string) get_option(GroupSync::LAST_SYNC_OPTION, ''));
+    }
+
+    /**
+     * @return array{type: string, message: string}|null
+     */
+    public static function postWarnings(): ?array
+    {
+        if (!PostSettings::isEnabled()) {
+            return null;
+        }
+
+        return self::warningsSince(Log::AREA_POSTS, (string) get_option(PostSync::LAST_SYNC_OPTION, ''));
     }
 
     /**

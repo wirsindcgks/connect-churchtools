@@ -7,9 +7,9 @@
 ![PHP](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fwirsindcgks%2Fconnect-churchtools%2Fmain%2Fupdate.json&query=%24.requires_php&label=PHP&prefix=%E2%89%A5)
 [![Lizenz](https://img.shields.io/github/license/wirsindcgks/connect-churchtools?label=Lizenz)](LICENSE)
 
-**Termine und Gruppen aus ChurchTools auf der eigenen WordPress-Website – einmal in ChurchTools gepflegt, auf der Website von selbst aktuell.**
+**Termine, Gruppen und Beiträge aus ChurchTools auf der eigenen WordPress-Website – einmal in ChurchTools gepflegt, auf der Website von selbst aktuell.**
 
-Das Plugin gleicht ausgewählte ChurchTools-Kalender und Gruppen-Homepages regelmäßig ab und zeigt sie in fertig gestalteten Ansichten an. Farben, Ecken und Aufbau stellt man im Backend mit Live-Vorschau ein, ganz ohne CSS.
+Das Plugin gleicht ausgewählte ChurchTools-Kalender, Gruppen-Homepages und auf Wunsch die Beiträge öffentlicher Gruppen regelmäßig ab und zeigt sie in fertig gestalteten Ansichten an. Farben, Ecken und Aufbau stellt man im Backend mit Live-Vorschau ein, ganz ohne CSS.
 
 ## Was es kann
 
@@ -19,6 +19,7 @@ Das Plugin gleicht ausgewählte ChurchTools-Kalender und Gruppen-Homepages regel
 - **Termindetails** als Popup oder als eigene Seite, auf Wunsch zum Teilen, als Kalenderdatei oder als Kalender-Abo.
 - **„Jetzt“ an laufenden Terminen:** Ein Termin, der gerade stattfindet, trägt ein Kennzeichen neben seinem Namen. Das Wort ist frei wählbar und lässt sich abschalten.
 - **Gruppen statt iframe:** die Gruppen einer Gruppen-Homepage in derselben Optik, mit freien Plätzen und Gruppenfinder.
+- **Beiträge als Neuigkeiten:** die Beiträge öffentlicher Gruppen als Kacheln, mit Bild und ganzem Text im Popup – nur, wenn man sie einschaltet.
 - **Gut für Suchmaschinen:** eigene Adresse je Termin, strukturierte Daten und Sitemap, verträglich mit Yoast SEO und Rank Math.
 - **Datensparsam:** Bilder werden importiert, Besucher laden nichts von der ChurchTools-Domain. Die Teilen-Knöpfe kommen ohne Skript von Drittanbietern und ohne Zählpixel aus.
 - **Updates** wie bei jedem anderen Plugin über die WordPress-Plugin-Übersicht.
@@ -81,7 +82,7 @@ Voraussetzungen: WordPress ab 6.4, PHP ab 8.1, eine ChurchTools-Instanz und ein 
    [ctp_events layout="list" finder="1" search="1" month_dividers="1"]
    ```
 
-Die ausführliche Anleitung mit Design, eigenen Terminseiten und Gruppen steht unter [Einrichtung](docs/EINRICHTUNG.md).
+Die ausführliche Anleitung mit Design, eigenen Terminseiten, Gruppen und Beiträgen steht unter [Einrichtung](docs/EINRICHTUNG.md).
 
 ## Dokumentation
 
@@ -90,6 +91,7 @@ Die ausführliche Anleitung mit Design, eigenen Terminseiten und Gruppen steht u
 | [Einrichtung](docs/EINRICHTUNG.md) | Verbindung, Kalender, Design, Terminseiten, API-Key |
 | [Termine anzeigen](docs/TERMINE.md) | Ansichten, Beispiele, Optionen, Teilen, Importieren und Abonnieren |
 | [Gruppen anzeigen](docs/GRUPPEN.md) | Gruppen-Homepages, Gruppenfinder, einzelne Gruppen hervorheben |
+| [Beiträge anzeigen](docs/BEITRAEGE.md) | Beiträge öffentlicher Gruppen als Neuigkeiten, was übernommen wird |
 | [Gut zu wissen](docs/GUT-ZU-WISSEN.md) | Caching-Plugins, Spaltenzahl, Grenzen, häufige Fragen |
 | [readme.txt](readme.txt) | Vollständige Referenz aller Optionen und FAQ, im Backend unter *Plugins → ChurchTools Events → Details* |
 | [Changelog](CHANGELOG.md) | Was sich mit jeder Version geändert hat |

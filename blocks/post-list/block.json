@@ -1,0 +1,37 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "churchtools-plugin/post-list",
+    "title": "ChurchTools Beiträge",
+    "category": "widgets",
+    "icon": "megaphone",
+    "description": "Zeigt die Beiträge öffentlicher Gruppen aus ChurchTools an.",
+    "textdomain": "churchtools-plugin",
+    "attributes": {
+        "groups": {
+            "type": "string",
+            "default": ""
+        },
+        "layout": {
+            "type": "string",
+            "default": "grid"
+        },
+        "columns": {
+            "type": "number",
+            "default": 3
+        },
+        "limit": {
+            "type": "number",
+            "default": 6
+        }
+    },
+    "supports": {
+        "align": [
+            "wide",
+            "full"
+        ]
+    },
+    "editorScript": "file:./build/index.js",
+    "style": "file:../../assets/css/frontend.css",
+    "script": "file:../../assets/js/frontend.js"
+}

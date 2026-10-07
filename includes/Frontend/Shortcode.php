@@ -8,10 +8,24 @@ use ChurchToolsPlugin\Settings;
 
 final class Shortcode
 {
+    /**
+     * Die Shortcodes des Plugins mit ihrer Methode. Assets liest dieselbe
+     * Liste, um zu entscheiden, auf welchen Seiten Stylesheet und Skript
+     * geladen werden - ein neuer Shortcode kann dort nicht mehr fehlen.
+     */
+    public const TAGS = ['ctp_events', 'ctp_groups', 'ctp_posts'];
+
+    private const METHODS = [
+        'ctp_events' => 'render',
+        'ctp_groups' => 'renderGroups',
+        'ctp_posts' => 'renderPosts',
+    ];
+
     public function register(): void
     {
-        add_shortcode('ctp_events', [$this, 'render']);
-        add_shortcode('ctp_groups', [$this, 'renderGroups']);
+        foreach (self::TAGS as $tag) {
+            add_shortcode($tag, [$this, self::METHODS[$tag]]);
+        }
     }
 
     /**
@@ -50,6 +64,30 @@ final class Shortcode
             // Gelesen wie bei [ctp_events], damit dieselbe Schreibweise dasselbe tut.
             'finder' => (bool) $atts['finder'],
             'search' => (bool) $atts['search'],
+        ]);
+    }
+
+    /**
+     * [ctp_posts] - die neuesten Beitraege aller oeffentlichen Gruppen.
+     *
+     * [ctp_posts groups="31,44" limit="3" layout="featured"] - nur die
+     * Beitraege dieser Gruppen, nach ID wie `groups` bei [ctp_groups]. `limit`
+     * zaehlt Beitraege wie bei [ctp_events]; 0 heisst alle gespeicherten.
+     */
+    public function renderPosts($atts): string
+    {
+        $atts = shortcode_atts([
+            'groups' => '',
+            'layout' => 'grid',
+            'columns' => 3,
+            'limit' => PostListRenderer::DEFAULT_LIMIT,
+        ], $atts, 'ctp_posts');
+
+        return (new PostListRenderer())->render([
+            'groups' => (string) $atts['groups'],
+            'layout' => (string) $atts['layout'],
+            'columns' => (int) $atts['columns'],
+            'limit' => $atts['limit'],
         ]);
     }
 

@@ -224,6 +224,44 @@ $abschnitte['gruppen-hervorgehoben'] = (static function (array $groups): string 
     return str_replace('loading="lazy"', 'loading="eager"', (string) ob_get_clean());
 })(array_slice($gruppen, 0, 2));
 
+/*
+ * Beitraege ([ctp_posts]) mit den Feldern, die PostListRenderer::preparePosts()
+ * ans Template reicht - ausgedachte Beitraege aus ausgedachten Gruppen, einer
+ * ohne Bild fuer die Farbflaeche.
+ */
+$beitraege = [];
+foreach ([
+    ['Helfer fürs Herbstfest gesucht', '28.09.2026', 'Gemeindeleben', 'bild-fest.jpg', "Für den Aufbau am Samstagmorgen brauchen wir noch sechs Paar Hände.\n\nWer Zeit hat, meldet sich einfach im Büro."],
+    ['Neue Termine im Jugendraum', '24.09.2026', 'Jugend', 'bild-jugend.jpg', 'Ab Oktober treffen wir uns freitags schon um 18 Uhr. Kochen, Kickern und Gespräche wie gewohnt.'],
+    ['Liederabend: Stimmen gesucht', '19.09.2026', 'Chor', '', 'Für den Liederabend im November proben wir sechs Wochen lang dienstags. Notenkenntnisse sind nicht nötig.'],
+] as $i => [$titel, $datum, $gruppe, $bild, $text]) {
+    $absaetze = '<p>' . str_replace("\n\n", '</p><p>', $text) . '</p>';
+    $beitraege[] = [
+        'id' => $i + 1,
+        'title' => $titel,
+        'group_url' => '#',
+        'image_src' => $bild !== '' ? $assets . '/' . $bild : '',
+        'image_srcset' => '',
+        'image_srcset_full' => '',
+        'show_media' => true,
+        'gallery' => [],
+        'date_label' => $datum,
+        'group_label' => $gruppe,
+        'excerpt' => $text,
+        'excerpt_html' => $absaetze,
+        'feature_excerpt_html' => esc_html($text),
+        'description_html' => $absaetze,
+    ];
+}
+
+$abschnitte['beitraege'] = (static function (array $posts): string {
+    $args = ctp_demo_args(['columns' => 3]);
+    ob_start();
+    require CTP_PLUGIN_DIR . 'includes/Frontend/templates/post-grid.php';
+
+    return str_replace('loading="lazy"', 'loading="eager"', (string) ob_get_clean());
+})($beitraege);
+
 $css = (string) file_get_contents(CTP_PLUGIN_DIR . 'assets/css/frontend.css');
 $rahmen = 'body{margin:0;padding:40px;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1f2933;}'
     . 'section{max-width:1100px;margin:0 auto 64px;background:#fff;padding:32px;border-radius:14px;}';

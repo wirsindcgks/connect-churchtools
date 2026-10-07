@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace ChurchToolsPlugin\Integrations;
 
 use ChurchToolsPlugin\Blocks\GroupListBlock;
+use ChurchToolsPlugin\Blocks\PostListBlock;
+use ChurchToolsPlugin\Frontend\PostListRenderer;
 use ChurchToolsPlugin\Groups\GroupSettings;
 use ChurchToolsPlugin\Groups\GroupSync;
 use ChurchToolsPlugin\Settings;
@@ -23,6 +25,19 @@ final class WpBakeryIntegration
 
     /** Klasse des Gruppen-Symbols (drei Personen statt des Kalenders). */
     private const GROUPS_ICON_CLASS = 'ctp-vc-icon-groups';
+
+    /** Das dritte Element, die Beitraege - mit eigenem Symbol wie die Gruppen. */
+    private const POSTS_BASE = 'ctp_posts';
+
+    /** Klasse des Beitrags-Symbols (ein Megafon, wie das Dashicon des Blocks). */
+    private const POSTS_ICON_CLASS = 'ctp-vc-icon-posts';
+
+    /**
+     * Die Gruppenauswahl des Beitrags-Elements - dieselbe Auswahl wie die
+     * Kalender des Termin-Elements (ohne Reihenfolge: Beitraege stehen nach
+     * Datum), mit eigenem Typ, weil WPBakery je Typ genau eine Ausgabe kennt.
+     */
+    public const POST_GROUP_PICKER_TYPE = 'ctp_post_group_picker';
 
     /** Der eigene Feldtyp fuer die Auswahl einzelner Gruppen, siehe renderGroupPicker(). */
     public const GROUP_PICKER_TYPE = 'ctp_group_picker';
@@ -97,9 +112,33 @@ final class WpBakeryIntegration
      */
     public function adminLabelValue($value, $param, $settings)
     {
-        if (!is_array($settings) || !in_array($settings['base'] ?? '', [self::BASE, self::GROUPS_BASE], true)) {
+        if (!is_array($settings) || !in_array($settings['base'] ?? '', [self::BASE, self::GROUPS_BASE, self::POSTS_BASE], true)) {
             return $value;
         }
+
+        $label = self::labelFor($value, is_array($param) ? $param : []);
+
+        // Maskiert, weil WPBakery den Wert ungefiltert in die Beschriftung
+        // schreibt (`'</label>: ' . $value . '</span>'` in
+        // WPBakeryShortCode::singleParamHtmlHolder(), in 6.4.1 nachgelesen).
+        // Gruppen- und Homepage-Namen pflegen in ChurchTools auch Leute ohne
+        // Rechte in WordPress - ein Name mit HTML liefe sonst im Editor eines
+        // Redakteurs (Sicherheits-Review 2026-10-07). esc_html() kodiert
+        // vorhandene Entities nicht doppelt; maskiert eine neuere Fassung von
+        // WPBakery selbst mit esc_html(), bleibt „&amp;" also „&amp;".
+        return is_scalar($label) ? esc_html((string) $label) : $label;
+    }
+
+    /**
+     * Die Beschriftung zum gespeicherten Wert, noch unmaskiert.
+     *
+     * @param mixed               $value
+     * @param array<string,mixed> $param
+     *
+     * @return mixed
+     */
+    private static function labelFor($value, array $param)
+    {
 
         // Die Gruppen-Auswahl speichert kommagetrennte IDs ("514,269"). Im
         // Baustein sollen die Namen stehen, in der gewaehlten Reihenfolge; die
@@ -227,6 +266,7 @@ final class WpBakeryIntegration
             $handle,
             $iconRule(self::ICON_CLASS, $perBase(self::BASE), 'wpbakery-element-icon.svg')
                 . $iconRule(self::GROUPS_ICON_CLASS, $perBase(self::GROUPS_BASE), 'wpbakery-groups-icon.svg')
+                . $iconRule(self::POSTS_ICON_CLASS, $perBase(self::POSTS_BASE), 'wpbakery-posts-icon.svg')
                 . self::groupPickerCss()
         );
 
@@ -253,6 +293,7 @@ final class WpBakeryIntegration
             $pickerScript = add_query_arg('ver', CTP_VERSION, CTP_PLUGIN_URL . 'assets/js/wpbakery-group-picker.js');
             vc_add_shortcode_param(self::GROUP_PICKER_TYPE, [self::class, 'renderGroupPicker'], $pickerScript);
             vc_add_shortcode_param(self::CALENDAR_PICKER_TYPE, [self::class, 'renderCalendarPicker'], $pickerScript);
+            vc_add_shortcode_param(self::POST_GROUP_PICKER_TYPE, [self::class, 'renderPostGroupPicker'], $pickerScript);
         }
 
         vc_map([
@@ -472,6 +513,76 @@ final class WpBakeryIntegration
             // Ursache liess sich ohne das Theme nicht finden. Ein Formular ohne
             // Reiter hatte die Auswahl bis 1.31.0 zuverlaessig behalten.
         ]);
+
+        vc_map([
+            'name' => __('ChurchTools Beiträge', 'churchtools-plugin'),
+            'base' => self::POSTS_BASE,
+            'category' => __('ChurchTools', 'churchtools-plugin'),
+            'icon' => self::POSTS_ICON_CLASS,
+            'params' => [
+                [
+                    'type' => self::POST_GROUP_PICKER_TYPE,
+                    'heading' => __('Gruppen', 'churchtools-plugin'),
+                    'description' => __('Leer = Beiträge aller öffentlichen Gruppen.', 'churchtools-plugin'),
+                    'param_name' => 'groups',
+                    'admin_label' => true,
+                    'ctp_choices' => self::postGroupOptions(),
+                ],
+                [
+                    'type' => 'dropdown',
+                    'heading' => __('Ansicht', 'churchtools-plugin'),
+                    'param_name' => 'layout',
+                    'admin_label' => true,
+                    'value' => [
+                        __('Raster', 'churchtools-plugin') => 'grid',
+                        __('Hervorgehoben', 'churchtools-plugin') => 'featured',
+                    ],
+                ],
+                [
+                    'type' => 'textfield',
+                    'heading' => __('Spalten', 'churchtools-plugin'),
+                    'description' => __('Höchstens so viele, wie in die Zeile passen – je Kachel mindestens 240px.', 'churchtools-plugin'),
+                    'param_name' => 'columns',
+                    'value' => '3',
+                    'dependency' => ['element' => 'layout', 'value' => 'grid'],
+                ],
+                [
+                    // Ein Textfeld mit `save_always` statt WPBakerys Standardwert:
+                    // Ein Feld mit dem Standardwert liesse WPBakery sonst aus dem
+                    // Shortcode weg, und der Shortcode soll fuer sich lesbar sein.
+                    'type' => 'textfield',
+                    'heading' => __('Anzahl Beiträge (0 = alle gespeicherten)', 'churchtools-plugin'),
+                    'description' => __('Die neuesten zuerst.', 'churchtools-plugin'),
+                    'param_name' => 'limit',
+                    'value' => (string) PostListRenderer::DEFAULT_LIMIT,
+                    'save_always' => true,
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Die Gruppen, aus denen gerade Beitraege vorliegen, als
+     * Beschriftung => ID - dieselbe Liste wie im Block
+     * (PostListBlock::groupChoices()).
+     *
+     * @return array<string, string>
+     */
+    private static function postGroupOptions(): array
+    {
+        $options = [];
+
+        foreach (PostListBlock::groupChoices() as $choice) {
+            $label = $choice['name'];
+
+            if (isset($options[$label])) {
+                $label .= sprintf(' #%d', $choice['id']);
+            }
+
+            $options[$label] = (string) $choice['id'];
+        }
+
+        return $options;
     }
 
     /**
@@ -668,6 +779,39 @@ final class WpBakeryIntegration
             'empty' => __('Keine Kalender gewählt – es gelten alle aktiven Kalender.', 'churchtools-plugin'),
             'filter' => __('Kalender filtern …', 'churchtools-plugin'),
             'none' => __('Noch keine Kalender geladen. Unter „ChurchTools → Events → Kalender“ zuerst Kalender laden.', 'churchtools-plugin'),
+        ], false);
+    }
+
+    /**
+     * Das Feld „Gruppen" des Beitrags-Elements: dieselbe Auswahl wie die
+     * Kalender, ohne Reihenfolge und in einem Abschnitt. Eine gewaehlte Gruppe,
+     * aus der gerade kein Beitrag vorliegt, bleibt als „nicht mehr verfuegbar"
+     * stehen, statt beim Speichern still zu verschwinden.
+     *
+     * @param array<string, mixed> $settings
+     * @param mixed                $value
+     */
+    public static function renderPostGroupPicker($settings, $value): string
+    {
+        $paramName = (string) ($settings['param_name'] ?? 'groups');
+        $selected = PostListRenderer::parseIds(is_scalar($value) ? (string) $value : '');
+        $names = [];
+        $items = '';
+
+        foreach (PostListBlock::groupChoices() as $choice) {
+            $names[$choice['id']] = $choice['name'];
+            $items .= self::pickerOption($choice['id'], $choice['name'], in_array($choice['id'], $selected, true));
+        }
+
+        $sections = $items === ''
+            ? ''
+            : sprintf('<fieldset class="ctp-wpb-picker__homepage"><legend>%1$s</legend><div class="ctp-wpb-picker__options">%2$s</div></fieldset>', esc_html__('Gruppen mit Beiträgen', 'churchtools-plugin'), $items);
+
+        return self::renderPicker($paramName, self::POST_GROUP_PICKER_TYPE, $selected, $names, [], $sections, [
+            'heading' => __('Ausgewählt', 'churchtools-plugin'),
+            'empty' => __('Keine Gruppen gewählt – es gelten alle öffentlichen Gruppen.', 'churchtools-plugin'),
+            'filter' => __('Gruppen filtern …', 'churchtools-plugin'),
+            'none' => __('Noch keine Beiträge abgeglichen. Unter „ChurchTools → Beiträge → Synchronisation“ den Abgleich einschalten.', 'churchtools-plugin'),
         ], false);
     }
 

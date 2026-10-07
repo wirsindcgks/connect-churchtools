@@ -87,7 +87,7 @@ jobs:
 
       - name: Build-Ergebnis pruefen
         run: |
-          for block in event-list group-list; do
+          for block in event-list group-list post-list; do
             test -s "blocks/${block}/build/index.js"
             test -s "blocks/${block}/build/index.asset.php"
           done

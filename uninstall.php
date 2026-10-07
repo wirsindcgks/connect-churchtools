@@ -19,6 +19,7 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     // gehen in jedem Fall.
     delete_option('ctp_lock_events');
     delete_option('ctp_lock_groups');
+    delete_option('ctp_lock_posts');
 
     // Das Protokoll (Log/Db\LogRepository) ist Betriebsspur, kein
     // Datenbestand wie Termine oder Gruppen - es geht wie die Sperren oben in
@@ -26,7 +27,7 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'ctp_log'));
 
     if (!empty($settings['keep_data_on_uninstall'])) {
-        // „Daten behalten" heisst Termine, Gruppen und Einstellungen - nicht
+        // „Daten behalten" heisst Termine, Gruppen, Beitraege und Einstellungen - nicht
         // das Geheimnis. Ein API-Key in der Datenbank eines Plugins, das es
         // nicht mehr gibt, liest niemand mehr und zieht auch niemand mehr
         // zurueck (Sicherheits-Review 2026-09-14). Bei einer Neuinstallation
@@ -68,6 +69,21 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     delete_option('ctp_group_image_warning');
     delete_option('ctp_group_last_sync');
     delete_option('ctp_group_homepages_fetched');
+
+    // Die Beitraege (siehe Posts\PostSync::optionNames(), dieselbe Liste noch
+    // einmal). Ihre Bilder stehen in der Zuordnung Bildadresse => Anhang.
+    $postImages = get_option('ctp_post_images', []);
+
+    foreach (is_array($postImages) ? $postImages : [] as $attachmentId) {
+        wp_delete_attachment((int) $attachmentId, true);
+    }
+
+    delete_option('ctp_post_settings');
+    delete_option('ctp_posts');
+    delete_option('ctp_post_images');
+    delete_option('ctp_post_sync_error');
+    delete_option('ctp_post_image_warning');
+    delete_option('ctp_post_last_sync');
 
     $tableName = $wpdb->prefix . 'ctp_events';
 

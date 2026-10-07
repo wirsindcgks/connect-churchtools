@@ -56,13 +56,14 @@ final class SettingsPageTest extends TestCase
     }
 
     /**
-     * Links im WordPress-Menue stehen die vier Bereiche (Nutzerentscheidung
+     * Links im WordPress-Menue stehen die Bereiche (Nutzerentscheidung
      * 2026-09-14: „links im Menue eine Uebersicht und Einstiegspunkte fuer
-     * Events bzw. Gruppen", Design unter „Einstellungen"). Der Test haelt die
-     * Liste fest, damit sie nicht beim naechsten Reiter unbemerkt mitwaechst -
-     * die Regel vom 2026-09-08 („maximal die Hauptpunkte") gilt weiter.
+     * Events bzw. Gruppen", Design unter „Einstellungen"; seit 2026-10-07 dazu
+     * die Beitraege als eigenes Thema). Der Test haelt die Liste fest, damit
+     * sie nicht beim naechsten Reiter unbemerkt mitwaechst - die Regel vom
+     * 2026-09-08 („maximal die Hauptpunkte") gilt weiter.
      */
-    public function testTheLeftMenuCarriesTheFourAreas(): void
+    public function testTheLeftMenuCarriesTheMainAreas(): void
     {
         ctp_test_reset_menu();
         (new SettingsPage())->addMenuPage();
@@ -71,6 +72,7 @@ final class SettingsPageTest extends TestCase
             'churchtools-plugin',
             'churchtools-plugin-events',
             'churchtools-plugin-groups',
+            'churchtools-plugin-posts',
             'churchtools-plugin-settings',
         ], array_column(ctp_test_submenu('churchtools-plugin'), 'slug'));
     }
@@ -140,6 +142,21 @@ final class SettingsPageTest extends TestCase
         $this->assertSame(['group_list', 'groups', 'group_sync', 'group_embed'], $areaTabs['groups']);
         $this->assertSame($labels['sync'], $labels['group_sync']);
         $this->assertSame($labels['embed'], $labels['group_embed']);
+    }
+
+    /**
+     * Die Beitraege folgen derselben Reihe, ohne Auswahl-Reiter: Was
+     * oeffentlich ist, entscheidet ChurchTools, und der Schalter steht unter
+     * „Synchronisation".
+     */
+    public function testPostsFollowTheSameTabSequenceWithoutASelection(): void
+    {
+        $areaTabs = (new \ReflectionClass(SettingsPage::class))->getConstant('AREA_TABS');
+        $labels = $this->invokePrivate('tabs');
+
+        $this->assertSame(['post_list', 'post_sync', 'post_embed'], $areaTabs['posts']);
+        $this->assertSame($labels['sync'], $labels['post_sync']);
+        $this->assertSame($labels['embed'], $labels['post_embed']);
     }
 
     /**

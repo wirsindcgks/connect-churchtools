@@ -173,6 +173,37 @@ final class Client
     }
 
     /**
+     * Beitraege aus oeffentlichen Gruppen, die neuesten zuerst.
+     *
+     * Die beiden Sichtbarkeitsfilter stehen hier fest und nicht beim
+     * Aufrufer: Der Key sieht mehr als ein Besucher - Beitraege nur fuer
+     * Gruppenmitglieder (`group_intern`) und Beitraege aus internen oder
+     * versteckten Gruppen. Was dieser Aufruf liefert, soll auf eine
+     * oeffentliche Website duerfen, ohne dass sich jemand daran erinnern muss.
+     * PostSync::normalizePost() prueft dieselben Felder an jedem Beitrag noch
+     * einmal.
+     *
+     * Seiten gibt es nur ueber einen Cursor (`before` plus
+     * `last_post_identifier`, laut Spec weil die Liste Beitraege fremder
+     * Instanzen enthalten kann), keine Seitennummern.
+     */
+    public function getPublicPosts(int $limit, ?string $before = null, ?string $lastPostGuid = null): array
+    {
+        $query = [
+            'group_visibility' => 'public',
+            'post_visibility' => 'group_visible',
+            'limit' => max(1, $limit),
+        ];
+
+        if ($before !== null && $lastPostGuid !== null) {
+            $query['before'] = $before;
+            $query['last_post_identifier'] = $lastPostGuid;
+        }
+
+        return $this->request('GET', '/api/posts', $query);
+    }
+
+    /**
      * Die Hashes an der echten Instanz sind 32 Zeichen aus Buchstaben und
      * Ziffern. Geprueft wird nur die Zeichenmenge, nicht die Laenge - eine
      * andere Instanz oder Version darf laengere oder kuerzere vergeben.
