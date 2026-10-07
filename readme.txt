@@ -4,7 +4,7 @@ Tags: churchtools, calendar, events, sync
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 1.37.0
+Stable tag: 1.38.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -309,6 +309,10 @@ Da Termindaten aus ChurchTools lokal auf dem eigenen WordPress-Server dupliziert
 
 == Upgrade Notice ==
 
+= 1.38.0 =
+
+Neu: Beiträge öffentlicher Gruppen aus ChurchTools als Neuigkeiten auf der Website. Ausgeschaltet, bis man es unter „ChurchTools → Beiträge → Synchronisation“ einschaltet – bestehende Installationen ändern sich ohne diesen Schritt nicht.
+
 = 1.37.0 =
 
 Updates kommen jetzt aus dem Repository wirsindcgks/connect-churchtools. Wer von 1.36.1 oder älter kommt, installiert diese Version einmal von Hand; danach laufen Updates wieder automatisch. Einstellungen und Termine bleiben unverändert.
@@ -544,6 +548,11 @@ Behebt mehrere Fehler rund um Antworten der ChurchTools-API, die als „nichts v
 Release-Kandidat vor 1.0.0. Enthält einen Fix, der den Button „Kalender von ChurchTools laden“ wieder funktionsfähig macht, und stellt den WP-Cron-Termin erstmals tatsächlich auf das im Tab „Synchronisation“ gewählte Intervall um. Nach dem Update einmal die Plugin-Seite im Backend aufrufen, damit der Zeitplan korrigiert wird.
 
 == Changelog ==
+
+= 1.38.0 =
+
+* Neu: Beiträge öffentlicher Gruppen als Neuigkeiten – neuer Bereich „Beiträge“ mit Shortcode `[ctp_posts]`, Block „ChurchTools Beiträge“ und WPBakery-Element „ChurchTools Beiträge“, in der Optik der Gruppenkacheln, mit dem ganzen Beitrag und allen Bildern im Popup. Standardmäßig ausgeschaltet. Übernommen werden nur Beiträge, die ChurchTools ausdrücklich als öffentlich führt (öffentliche Gruppe, sichtbar für alle, die die Gruppe sehen), ohne Verfasser, Kommentare oder Reaktionen. Filter nach Gruppen mit `groups="…"` oder der Auswahl in Block und WPBakery.
+* Behoben: In der Beschriftung der WPBakery-Elemente stehen Gruppen- und Homepage-Namen jetzt maskiert. WPBakery gibt sie ungefiltert aus, und die Namen pflegen in ChurchTools auch Personen ohne Rechte in WordPress.
 
 = 1.37.0 =
 

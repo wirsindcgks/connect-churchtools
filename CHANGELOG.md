@@ -5,6 +5,18 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 Format basiert auf [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
+## [1.38.0] - 2026-10-07
+
+### Added
+
+- **Beiträge öffentlicher Gruppen als Neuigkeiten.** Neuer Bereich *Beiträge* im Backend (Beitragsliste, Synchronisation, Einbinden) mit Shortcode `[ctp_posts]`, Block „ChurchTools Beiträge“ und WPBakery-Element „ChurchTools Beiträge“. Die Kacheln folgen der Optik der Gruppen und den Einstellungen unter *Einstellungen → Design*; ein Klick öffnet den ganzen Beitrag mit allen Bildern im Popup. Attribute: `groups` (Filter nach Gruppen-ID), `limit` (Standard 6), `layout` (`grid`/`featured`), `columns`.
+- **Standardmäßig aus.** Erst der Schalter unter *Beiträge → Synchronisation* legt einen Zeitplan an; ohne ihn fragt das Plugin ChurchTools nicht nach Beiträgen. Ausgeschaltet zeigt die Website sofort nichts mehr, der nächste Lauf entfernt Beiträge und Bilder.
+- **Nur öffentliche Beiträge:** aus Gruppen mit Sichtbarkeit „öffentlich“ und sichtbar für alle, die die Gruppe sehen – geprüft im Abruf und noch einmal an jedem Beitrag, weil der API-Key mehr sehen kann als ein Besucher. Abgelaufene, gesperrte, noch nicht veröffentlichte und Beiträge anderer Instanzen bleiben draußen; Verfasser, Kommentare und Reaktionen werden nicht übernommen.
+
+### Fixed
+
+- Gruppen- und Homepage-Namen in der Beschriftung der WPBakery-Elemente werden maskiert. WPBakery gibt die Beschriftung ungefiltert aus, und die Namen pflegen in ChurchTools auch Personen ohne Rechte in WordPress (Sicherheits-Review).
+
 ## [1.37.0] - 2026-09-28
 
 ### Changed
