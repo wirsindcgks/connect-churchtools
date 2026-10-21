@@ -9,5 +9,17 @@
     },
     "devDependencies": {
         "@wordpress/scripts": "^36.0.0"
+    },
+    "overrides": {
+        "copy-webpack-plugin": {
+            "serialize-javascript": "7.1.2"
+        },
+        "markdownlint-cli": {
+            "smol-toml": "1.9.0",
+            "js-yaml": "5.4.2"
+        },
+        "micromark-extension-math": {
+            "katex": "0.18.11"
+        }
     }
 }
