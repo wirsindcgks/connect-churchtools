@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ChurchToolsPlugin\Tests\Sync;
 
+use ChurchToolsPlugin\Security\Crypto;
 use ChurchToolsPlugin\Sync\RoomLookup;
 use ChurchToolsPlugin\Sync\SyncEngine;
 use PHPUnit\Framework\TestCase;
@@ -40,6 +41,39 @@ final class SyncEngineTest extends TestCase
     public function testGetLastErrorReturnsNullWhenNoErrorStored(): void
     {
         $this->assertNull(SyncEngine::getLastError());
+    }
+
+    /**
+     * Die Sperre aller Instanzen am 2026-10-21: Kalenderliste, Raumliste und
+     * Termine scheiterten einzeln, das Protokoll bekam drei Zeilen mit
+     * derselben Meldung - die zur Raumliste als Info. Jetzt endet der Lauf am
+     * ersten 503 mit genau einem Fehler, und der Tab „Kalender" bekommt keinen
+     * eigenen, der nur dasselbe sagt.
+     */
+    public function testAnUnavailableInstanceEndsTheRunWithASingleError(): void
+    {
+        ctp_test_install_wpdb();
+        ctp_test_reset_http();
+        ctp_test_reset_hooks();
+        ctp_test_set_option('ctp_settings', [
+            'instance' => 'musterkirche',
+            'api_key' => Crypto::encrypt('termine-token'),
+            'calendars' => [2 => ['name' => 'Gottesdienste', 'color' => '#000000', 'enabled' => true]],
+            'resources' => [7 => ['name' => 'Saal', 'enabled' => true]],
+        ]);
+        ctp_test_queue_raw_http('ChurchTools ist vorübergehend nicht erreichbar', 503);
+
+        $logged = [];
+        add_action('ctp_log', static function (string $level, string $area, string $message) use (&$logged): void {
+            $logged[] = [$level, $message];
+        }, 10, 4);
+
+        SyncEngine::run();
+
+        $this->assertCount(1, ctp_test_http_calls());
+        $this->assertSame([['error', 'Synchronisation fehlgeschlagen: ChurchTools API error 503: ChurchTools ist vorübergehend nicht erreichbar']], $logged);
+        $this->assertStringContainsString('503', SyncEngine::getLastError()['message']);
+        $this->assertNull(SyncEngine::getLastCalendarError());
     }
 
     public function testGetLastErrorReturnsPersistedError(): void

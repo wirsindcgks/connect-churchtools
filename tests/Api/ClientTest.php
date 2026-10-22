@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace ChurchToolsPlugin\Tests\Api;
 
 use ChurchToolsPlugin\Api\Client;
+use ChurchToolsPlugin\Api\UnavailableException;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use RuntimeException;
+use WP_Error;
 
 /**
  * request() selbst braucht wp_remote_request() und damit ein laufendes
@@ -140,6 +142,54 @@ final class ClientTest extends TestCase
             $this->fail('Eine Weiterleitung muss eine Ausnahme ergeben.');
         } catch (RuntimeException $exception) {
             $this->assertStringContainsString('HTTP 302', $exception->getMessage());
+        }
+    }
+
+    /**
+     * 502, 503 und 504 heissen „die Instanz ist weg“ - der Lauf darf daran
+     * abbrechen (siehe UnavailableException). Die Meldung bleibt dieselbe.
+     */
+    public function testAGatewayOrMaintenanceStatusMeansUnavailable(): void
+    {
+        foreach ([502, 503, 504] as $code) {
+            ctp_test_reset_http();
+            ctp_test_queue_raw_http('Vorübergehend nicht erreichbar', $code);
+
+            try {
+                (new Client('https://example.church.tools', 'token'))->getCalendars();
+                $this->fail('HTTP ' . $code . ' muss eine Ausnahme ergeben.');
+            } catch (UnavailableException $exception) {
+                $this->assertSame('ChurchTools API error ' . $code . ': Vorübergehend nicht erreichbar', $exception->getMessage());
+            }
+        }
+    }
+
+    /** Kein Netzweg ist dasselbe wie eine gesperrte Instanz. */
+    public function testATransportErrorMeansUnavailable(): void
+    {
+        ctp_test_reset_http();
+        $GLOBALS['ctp_test_http'][] = new WP_Error('http_request_failed', 'cURL error 28: Operation timed out');
+
+        $this->expectException(UnavailableException::class);
+        $this->expectExceptionMessage('cURL error 28');
+
+        (new Client('https://example.church.tools', 'token'))->getCalendars();
+    }
+
+    /**
+     * Ein 500 kommt auch von einem einzelnen kaputten Endpunkt - der soll den
+     * Rest eines Laufs nicht mitnehmen.
+     */
+    public function testAnInternalErrorIsNotUnavailable(): void
+    {
+        ctp_test_reset_http();
+        ctp_test_queue_raw_http('Internal Server Error', 500);
+
+        try {
+            (new Client('https://example.church.tools', 'token'))->getCalendars();
+            $this->fail('HTTP 500 muss eine Ausnahme ergeben.');
+        } catch (RuntimeException $exception) {
+            $this->assertNotInstanceOf(UnavailableException::class, $exception);
         }
     }
 

@@ -276,7 +276,7 @@ final class Client
         ]);
 
         if (is_wp_error($response)) {
-            throw new RuntimeException($response->get_error_message());
+            throw new UnavailableException($response->get_error_message());
         }
 
         $code = wp_remote_retrieve_response_code($response);
@@ -291,11 +291,15 @@ final class Client
         }
 
         if ($code >= 400) {
-            throw new RuntimeException(sprintf(
+            $message = sprintf(
                 'ChurchTools API error %d: %s',
                 $code,
                 $this->extractErrorMessage($rawBody, json_decode($rawBody, true))
-            ));
+            );
+
+            throw in_array($code, UnavailableException::STATUS_CODES, true)
+                ? new UnavailableException($message)
+                : new RuntimeException($message);
         }
 
         return $rawBody;

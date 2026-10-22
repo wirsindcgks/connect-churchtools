@@ -6,6 +6,7 @@ namespace ChurchToolsPlugin\Sync;
 
 use ChurchToolsPlugin\Address;
 use ChurchToolsPlugin\Api\Client;
+use ChurchToolsPlugin\Api\UnavailableException;
 use ChurchToolsPlugin\Db\EventRepository;
 use ChurchToolsPlugin\Db\Installer;
 use ChurchToolsPlugin\Frontend\CardImage;
@@ -96,8 +97,17 @@ final class SyncEngine
         // damit ein in ChurchTools geloeschter Kalender nicht gleich danach
         // noch einmal abgefragt wird und ein dort neu angelegter sofort in der
         // Auswahl auftaucht.
-        self::refreshCalendarList();
-        self::refreshResourceList();
+        //
+        // Ist ChurchTools gar nicht erreichbar, endet der Lauf schon hier, mit
+        // einer einzigen Meldung - die Termine wuerden nur dasselbe sagen.
+        try {
+            self::refreshCalendarList();
+            self::refreshResourceList();
+        } catch (UnavailableException $exception) {
+            self::rememberError($exception);
+
+            return;
+        }
 
         $calendarIds = Settings::getEnabledCalendarIds();
 
@@ -185,6 +195,10 @@ final class SyncEngine
             if ($result['changed']) {
                 EventQueryCache::flush();
             }
+        } catch (UnavailableException $exception) {
+            // Kein Fehler der Kalenderliste, sondern des ganzen Laufs - siehe
+            // runUnlocked().
+            throw $exception;
         } catch (Throwable $exception) {
             update_option(self::OPTION_CALENDARS_ERROR, [
                 'time' => current_time('mysql'),
@@ -213,9 +227,13 @@ final class SyncEngine
     {
         try {
             ResourceList::refresh(new Client(Settings::getBaseUrl(), ApiKey::current()));
+        } catch (UnavailableException $exception) {
+            throw $exception;
         } catch (Throwable $exception) {
+            // Warnung, nicht Info: Hier sind Raeume ausgewaehlt, der
+            // Fehlschlag hat also Folgen - wie bei lookUpRooms().
             if (ResourceList::enabledIds() !== []) {
-                Log::info(Log::AREA_EVENTS, 'Raumliste konnte nicht abgeglichen werden: ' . $exception->getMessage());
+                Log::warning(Log::AREA_EVENTS, 'Raumliste konnte nicht abgeglichen werden: ' . $exception->getMessage());
             }
         }
     }

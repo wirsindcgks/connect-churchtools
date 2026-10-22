@@ -323,13 +323,76 @@ final class GroupSyncTest extends TestCase
             9 => ['fetched' => '2026-09-13 12:00:00', 'empty_runs' => 0, 'groups' => [['id' => 1, 'name' => 'Bestand']]],
         ]);
         ctp_test_queue_http([$this->listEntry('9', 'Kleingruppen', 'AbC123')]);
-        ctp_test_queue_raw_http('Service Unavailable', 503);
+        ctp_test_queue_raw_http('Not Found', 404);
 
         GroupSync::run();
 
         $this->assertSame('Bestand', GroupSync::groupsFor(9)[0]['name']);
         $this->assertStringContainsString('Kleingruppen', GroupSync::getLastError()['message']);
         $this->assertFalse(get_option(GroupSync::LAST_SYNC_OPTION));
+    }
+
+    /**
+     * Ist ChurchTools gesperrt (2026-10-21), fragt der Lauf nach der Liste
+     * nichts mehr ab und schreibt genau eine Zeile - nicht eine je Homepage.
+     */
+    public function testAnUnavailableInstanceEndsTheRunWithASingleError(): void
+    {
+        $this->configure([
+            9 => ['name' => 'Kleingruppen', 'hash' => 'AbC123', 'enabled' => true],
+            6 => ['name' => 'Mitarbeit', 'hash' => 'XyZ789', 'enabled' => true],
+        ]);
+        $stored = [9 => ['fetched' => '2026-09-13 12:00:00', 'empty_runs' => 0, 'groups' => [['id' => 1, 'name' => 'Bestand']]]];
+        ctp_test_set_option(GroupSync::DATA_OPTION, $stored);
+        ctp_test_queue_raw_http('ChurchTools ist vorübergehend nicht erreichbar', 503);
+        $logged = $this->recordLog();
+
+        GroupSync::run();
+
+        $this->assertCount(1, ctp_test_http_calls());
+        $this->assertSame([['error', 'Synchronisation der Gruppen fehlgeschlagen: ChurchTools API error 503: ChurchTools ist vorübergehend nicht erreichbar']], $logged->entries);
+        $this->assertSame($stored, GroupSync::storedData());
+        $this->assertStringContainsString('503', GroupSync::getLastError()['message']);
+        $this->assertFalse(get_option(GroupSync::LAST_SYNC_OPTION));
+    }
+
+    /** Bricht die Verbindung mitten im Lauf weg, gilt dasselbe. */
+    public function testAnInstanceLostMidRunKeepsEveryStoredHomepage(): void
+    {
+        $this->configure([
+            9 => ['name' => 'Kleingruppen', 'hash' => 'AbC123', 'enabled' => true],
+            6 => ['name' => 'Mitarbeit', 'hash' => 'XyZ789', 'enabled' => true],
+        ]);
+        $stored = [9 => ['fetched' => '2026-09-13 12:00:00', 'empty_runs' => 0, 'groups' => [['id' => 1, 'name' => 'Bestand']]]];
+        ctp_test_set_option(GroupSync::DATA_OPTION, $stored);
+        ctp_test_queue_http([
+            $this->listEntry('9', 'Kleingruppen', 'AbC123'),
+            $this->listEntry('6', 'Mitarbeit', 'XyZ789'),
+        ]);
+        ctp_test_queue_raw_http('Bad Gateway', 502);
+        $logged = $this->recordLog();
+
+        GroupSync::run();
+
+        $this->assertCount(2, ctp_test_http_calls(), 'Nach dem 502 wird keine weitere Homepage abgefragt.');
+        $this->assertCount(1, $logged->entries);
+        $this->assertSame('error', $logged->entries[0][0]);
+        $this->assertSame($stored, GroupSync::storedData());
+    }
+
+    /** Schreibt jeden Protokolleintrag als [Stufe, Meldung] mit. */
+    private function recordLog(): object
+    {
+        ctp_test_reset_hooks();
+        $logged = new class () {
+            /** @var list<array{0: string, 1: string}> */
+            public array $entries = [];
+        };
+        add_action('ctp_log', static function (string $level, string $area, string $message) use ($logged): void {
+            $logged->entries[] = [$level, $message];
+        }, 10, 4);
+
+        return $logged;
     }
 
     /**

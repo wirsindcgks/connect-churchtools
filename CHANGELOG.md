@@ -5,6 +5,13 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 Format basiert auf [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
+## [Unreleased]
+
+### Fixed
+
+- **Ist ChurchTools nicht erreichbar, steht im Protokoll eine Zeile statt drei.** Anlass war die Sperre aller Instanzen am 21. Oktober 2026 wegen einer PHP-Lücke: Ein Termin-Lauf scheiterte an Kalenderliste, Raumliste und Terminen einzeln und schrieb dieselbe lange Meldung dreimal ins Protokoll, bei den Gruppen kam eine Zeile je Homepage dazu. Jetzt endet ein Lauf am ersten Zeichen, dass die ganze Instanz weg ist (kein Netzweg, HTTP 502, 503 oder 504), mit einem einzigen Fehler „Synchronisation fehlgeschlagen“. Gespeicherte Termine und Gruppen bleiben wie bisher stehen. Ein HTTP 500 zählt bewusst nicht dazu: Er kommt auch von einem einzelnen fehlerhaften Endpunkt und soll den Rest des Laufs nicht mitnehmen.
+- **„Raumliste konnte nicht abgeglichen werden“ ist eine Warnung, keine Info mehr.** Protokolliert wird der Fehlschlag nur, wenn Räume ausgewählt sind, und dann hat er Folgen: Die Liste veraltet. Damit steht er auf derselben Stufe wie die Raumbuchungen und die Gemeindeanschrift und erscheint nach einem sonst erfolgreichen Lauf auch im Hinweis im Backend.
+
 ## [1.38.0] - 2026-10-07
 
 ### Added

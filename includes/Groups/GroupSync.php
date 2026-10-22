@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ChurchToolsPlugin\Groups;
 
 use ChurchToolsPlugin\Api\Client;
+use ChurchToolsPlugin\Api\UnavailableException;
 use ChurchToolsPlugin\Log;
 use ChurchToolsPlugin\Security\ApiKey;
 use ChurchToolsPlugin\Settings;
@@ -125,7 +126,9 @@ final class GroupSync
         $errors = [];
 
         // Faellt der Listenabruf aus, laufen die angehakten Homepages trotzdem:
-        // Ihr Hash steht in den Einstellungen.
+        // Ihr Hash steht in den Einstellungen. Nur wenn ChurchTools gar nicht
+        // erreichbar ist, endet der Lauf hier - jede Homepage wuerde dasselbe
+        // noch einmal melden.
         try {
             $result = self::refreshHomepageList($client);
 
@@ -133,6 +136,10 @@ final class GroupSync
                 $errors[] = $result['message'];
                 Log::error(Log::AREA_GROUPS, 'Homepage-Liste konnte nicht abgeglichen werden: ' . $result['message']);
             }
+        } catch (UnavailableException $exception) {
+            self::failRun($exception);
+
+            return;
         } catch (Throwable $exception) {
             $errors[] = $exception->getMessage();
             Log::error(Log::AREA_GROUPS, 'Homepage-Liste konnte nicht abgeglichen werden: ' . $exception->getMessage());
@@ -159,6 +166,12 @@ final class GroupSync
 
                 $data[$id] = self::nextHomepageData($stored[$id] ?? null, $groups, $now);
                 $data[$id]['filters'] = self::shownFilters($response);
+            } catch (UnavailableException $exception) {
+                // Mitten im Lauf weggebrochen: Gespeichert ist noch nichts,
+                // der Bestand aller Homepages bleibt also stehen.
+                self::failRun($exception);
+
+                return;
             } catch (Throwable $exception) {
                 $errors[] = sprintf('%s: %s', (string) $homepage['name'], $exception->getMessage());
                 Log::error(Log::AREA_GROUPS, sprintf(
@@ -210,6 +223,21 @@ final class GroupSync
             'time' => $now,
             'message' => implode(' · ', $errors),
         ]);
+    }
+
+    /**
+     * Ein Lauf, der an der Erreichbarkeit von ChurchTools gescheitert ist:
+     * eine Meldung, keine Zusammenfassung, gespeicherte Gruppen und Bilder
+     * bleiben unangetastet.
+     */
+    private static function failRun(UnavailableException $exception): void
+    {
+        update_option(self::ERROR_OPTION, [
+            'time' => current_time('mysql'),
+            'message' => $exception->getMessage(),
+        ]);
+
+        Log::error(Log::AREA_GROUPS, 'Synchronisation der Gruppen fehlgeschlagen: ' . $exception->getMessage());
     }
 
     /**
