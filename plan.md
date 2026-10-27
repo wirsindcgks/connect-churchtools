@@ -921,6 +921,58 @@ Frage des Nutzers: „Wann sollten wir auf eine stabile V2 gehen?“ Antwort: **
 2. **Übergangszeit** von etwa vier bis sechs Wochen, damit jede Installation die Migrationen durchlaufen hat und Betreiber ihre PHP-Version anheben können.
 3. **2.0.0**: Mindestversionen gelten, Ballast entfernt, Vertrag gilt, das Plugin heißt „Connect ChurchTools“ und trägt den Hinweis auf seine Unabhängigkeit. Danach Minor- und Patch-Releases, bis wieder gebündelt gebrochen wird.
 
+### Umsetzungsplan 2.0.0 (2026-10-26)
+
+Grundgedanke: **Alles, was kein Bruch ist, kommt vorher in eine letzte 1.x-Version.** Erst danach läuft die Ruhephase („einige Wochen ohne Patch-Release“). Jedes weitere Release stellt diese Uhr zurück, deshalb sollen nach der Ruhephase keine 1.x-Umbauten mehr kommen. 2.0.0 enthält dann nur noch die Brüche und die Umbenennung.
+
+**Phase A – Einstellungen und Bestandsaufnahme (Nutzer, ohne Code, sofort)**
+
+- [ ] A1 **Unveränderliche Releases** einschalten (*Settings → General → Releases*). Per API am 2026-10-26 noch aus.
+- [ ] A2 **Zwei-Faktor-Pflicht** für die Organisation `wirsindcgks` einschalten. Am 2026-10-26 noch aus. Vorher prüfen, ob alle Mitglieder 2FA haben, sonst fliegen sie aus der Organisation.
+- [ ] A3 **`build` als Pflicht-Check** in das Ruleset „main – nur mit grüner CI“ aufnehmen.
+- [ ] A4 **Live-Stand ablesen**: Version an `?ver=` der Assets, außerdem das Panel „Vorbereitung auf 2.0.0“ (Key `ctp2:`, `ctp_db_version` ≥ 1.8.0, keine Brücke `rooms_exclusive`, Vorlagen im Theme). Das Ergebnis entscheidet, ob Phase D die Altwege ersatzlos streichen darf.
+- Mit A1–A3 ist Phase 0 erledigt (Voraussetzung „Phase 0 des Review-Plans“).
+
+**Phase B – 1.39.0: Umbau ohne Bruch (Branch zum Issue, ein PR)**
+
+- [ ] B1 **Inline-Skript auslagern**: `SettingsPage.php` Zeilen ~4579–5102 (rund 520 Zeilen) nach `assets/js/admin.js`, eingebunden per `wp_enqueue_script` nur auf den Seiten des Plugins. PHP-Werte gehen über `wp_add_inline_script(..., 'before')` mit. Kommt zuerst, weil es sich unabhängig von den Reitern prüfen lässt.
+- [ ] B2 **Reiter einzeln** nach dem Muster von `GroupsTab`/`PostsTab`, ein Commit je Reiter: `RoomsTab` (ab ~994), `CalendarsTab` (~1208, mit `renderCalendarCard`), `DesignTab` (Felder ~1573–2194 samt beiden Vorschauen bis ~2438), `EmbedTab` (~2438, mit `renderShortcodeReference`), `UpdatesTab` (~3246), `LogTab` (~3372 bis ~3590), `StatusOverview` (~3590), `EventsOverview` (~3950 bis ~4389). In `SettingsPage` bleiben Registrierung, `AREA_TABS`, Navigation, `renderTabStatus`, Speichern und `renderPage`. Feldnamen, Optionsnamen und Adressen bleiben unverändert.
+  - *Prüfen*: `composer test`, `composer lint`, `composer analyse`. Danach in der Testumgebung jeden Reiter öffnen, einmal speichern, die Leiste „ungespeichert“ und beide Design-Vorschauen ausprobieren und `debug.log` lesen.
+- [ ] B3 **Vertrag vervollständigen** in `docs/COMPATIBILITY.md`: Es **fehlen die Beiträge aus 1.38.0** (`[ctp_posts]` mit Attributen, Block `PostListBlock`, WPBakery-Element `ctp_posts`, Vorlagen `post-grid.php`/`post-featured.php` samt Variablen). Außerdem die Liste der zugesagten `--ctp-*`-Properties gegen die CSS abgleichen. README und readme.txt verweisen schon auf die Datei. Bei ihnen nur prüfen, dass kein Attribut fehlt.
+- [ ] B4 **Template-Versionen**: Kopfzeile `@version x.y.z` in jeder überschreibbaren Vorlage (die acht aus der Tabelle in COMPATIBILITY.md). `UpgradeReadiness` bzw. `SyncHealthNotice` liest diese Zeile auch aus Kopien im Theme und meldet einen Hinweis, wenn eine Kopie älter als die mitgelieferte Vorlage ist oder keine Versionszeile hat. Das ist kein Bruch und kommt deshalb schon in 1.39.0, damit Theme-Betreiber vor 2.0 sehen, welche Kopien veraltet sind.
+- [ ] B5 Anwenderdoku nachziehen, wo sich etwas sichtbar ändert (Hinweis zu Vorlagen). Changelog. Release erst nach Rückfrage.
+
+**Phase C – Ruhephase (etwa vier Wochen)**
+
+- [ ] C1 1.39.0 (bzw. der letzte 1.x-Patch) läuft vier Wochen ohne weiteres Release auf der Live-Seite. Fehler in dieser Zeit: Patch-Release, danach beginnt die Uhr neu.
+- [ ] C2 Am Ende A4 wiederholen. Erst wenn die Live-Seite alle Migrationen hinter sich hat, wird Phase D gemergt.
+- Phase D darf schon in dieser Zeit auf einem eigenen Branch entstehen, nur nicht released werden.
+
+**Phase D – 2.0.0 (eigener Branch, ein PR, ein Commit je Punkt)**
+
+- [ ] D1 **Mindestversionen PHP 8.3 / WP 6.6**: Plugin-Header und readme.txt (`Requires PHP`, `Requires at least`), `composer.json` (`require.php` auf `>=8.3`, Lockdatei neu), `phpcs.xml.dist` (`testVersion` `8.3-`), `ci.yml` (4× `php-version`), `release.yml` (1×). Die Prüfung in PHPStan nachsehen und angleichen, falls dort eine Version steht. `UpgradeReadiness::MIN_PHP`/`MIN_WP` stimmen schon.
+- [ ] D2 **Altwege entfernen, aber nicht stumm**:
+  - `SettingsPage::redirectLegacyTabUrl()` samt Hook: ersatzlos.
+  - `Security\Crypto`: `LEGACY_PREFIX` `ctp1:`, Werte ohne Präfix und doppelt verschlüsselte Werte aus der Zeit vor 0.12.4. **Absicherung**: Eine Installer-Migration in 2.0 erkennt einen Key ohne `ctp2:` und zeigt den Hinweis „API-Key neu eingeben“, statt ihn als Müll zu entschlüsseln. Die Maskierung in `Log.php:152` bleibt auch für `ctp1:` stehen, sie kostet nichts.
+  - Brücke `rooms_exclusive` (`ResourceList::resolveMode()`, Kommentar in `Settings.php`): Eine einmalige Migration übernimmt den Wert in die heutige Einstellung und löscht den alten Schlüssel. Danach fällt der Rückfall weg.
+  - `Installer::dropRetiredSettings()`: ersatzlos.
+  - Tests dazu anpassen; für beide Migrationen je ein Test.
+- [ ] D3 **Umbenennung „Connect ChurchTools“**: Plugin-Name und -Beschreibung (mit dem kurzen Unabhängigkeitshinweis), Blocktitel, WPBakery-Elemente, Menü „Events“ → „Termine“, README, readme.txt, `docs/`, Bildunterschriften und **Screenshots neu**. Unabhängigkeitshinweis oben in README/readme.txt, als FAQ und in der Fußzeile von „Einstellungen → Updates“. **Bleibt unverändert**: Ordner/Slug `churchtools-plugin`, Text Domain, ZIP-Name `churchtools-plugin-v*.zip` (sonst bricht der Updater), Präfixe `ctp_`/`--ctp-`, Blocknamen `churchtools-plugin/*`, Theme-Ordner `churchtools-plugin/`. `DocumentationLabelsTest` und `VersionConsistencyTest` anpassen.
+- [ ] D4 **Ankündigung abbauen**: `MajorVersionNotice` entfernen (samt gespeichertem Ausblende-Status je Benutzer). `UpgradeReadiness` aus dem Panel nehmen oder auf die Template-Prüfung aus B4 reduzieren.
+- [ ] D5 **Doku zum Release**: `COMPATIBILITY.md` – aus „Was mit 2.0.0 kommt“ wird „Was 2.0.0 geändert hat“. Upgrade Notice in readme.txt, Changelog, `ARCHITECTURE.md` ohne Altwege. GitHub-Beschreibung des Repos.
+- [ ] D6 **Prüfen**:
+  - `composer test`/`lint`/`analyse` und die Integrationstests, Exit-Code zählt.
+  - In der Testumgebung **Update-Pfad**: 1.39.x mit einem `ctp1:`-Key und gesetztem `rooms_exclusive` einspielen, dann das 2.0-ZIP darüber installieren. Erwartet: Hinweis auf den Key, Raumeinstellung übernommen, kein Fatal Error, `debug.log` leer.
+  - Unter PHP 8.2 bricht WordPress die Installation mit seiner eigenen Meldung ab.
+  - Danach ein gegnerischer Review-Durchgang über den ganzen PR.
+- [ ] D7 Anhalten und fragen, ob released wird (Tag, `update.json`). Danach die Live-Seite an `?ver=` prüfen.
+
+**Offene Fragen an den Nutzer**
+
+1. Template-Versionen schon in 1.39.0 (Vorschlag) oder erst mit 2.0.0?
+2. Ist eine 2FA-Pflicht für die Organisation recht, oder gibt es Mitglieder ohne 2FA?
+3. Soll für einen alten Key (`ctp1:`) wirklich nur der Hinweis kommen (Vorschlag), oder soll 2.0 das alte Format noch ein letztes Mal lesen und umschreiben?
+
 ### Buttons: ein System statt je Bereich (2026-09-15)
 
 Nutzerbefund: „Der Button Hover im Gruppenbereich passt noch nicht zum Events Bereich. Hover wird Akzentfarbe vom Theme. Kannst du das Verhalten vielleicht generalisieren und nicht je Bereich bauen?"
