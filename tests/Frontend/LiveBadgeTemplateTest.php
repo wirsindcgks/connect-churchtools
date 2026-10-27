@@ -80,7 +80,7 @@ final class LiveBadgeTemplateTest extends TestCase
     }
 
     /**
-     * Das leere Feld ist der Ausschalter (siehe SettingsPage::renderLiveLabelField()) -
+     * Das leere Feld ist der Ausschalter (siehe DesignTab::renderLiveLabelField()) -
      * dann steht weder Pille noch Zeitstempel im Quelltext.
      *
      * @dataProvider layoutProvider

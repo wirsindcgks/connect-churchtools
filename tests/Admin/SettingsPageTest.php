@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ChurchToolsPlugin\Tests\Admin;
 
+use ChurchToolsPlugin\Admin\DesignTab;
 use ChurchToolsPlugin\Admin\SettingsPage;
 use ChurchToolsPlugin\Api\Client;
 use ChurchToolsPlugin\Frontend\CardDesign;
@@ -224,7 +225,7 @@ final class SettingsPageTest extends TestCase
 
     /**
      * Jeder Bereich des Design-Tabs muss auch Felder haben: Die Navigation
-     * baut sich aus designSections(), die Inhalte holt renderPage() dagegen
+     * baut sich aus designSections(), die Inhalte holt DesignTab::render() dagegen
      * aus `PAGE_SLUG . '_design_' . $section`. Ein Bereich ohne passende
      * Settings-Seite ergibt keinen Fehler, sondern einen Reiter, der auf eine
      * leere Seite fuehrt — genau die Sorte Luecke, die beim Anlegen des
@@ -235,7 +236,7 @@ final class SettingsPageTest extends TestCase
         ctp_test_reset_settings();
         (new SettingsPage())->registerSettings();
 
-        foreach (array_keys($this->invokePrivate('designSections')) as $section) {
+        foreach (array_keys(DesignTab::designSections()) as $section) {
             $this->assertNotSame(
                 [],
                 ctp_test_settings_fields('churchtools-plugin_design_' . $section),
@@ -266,21 +267,21 @@ final class SettingsPageTest extends TestCase
         ctp_test_reset_settings();
         (new SettingsPage())->registerSettings();
 
-        $methoden = ['renderDesignPreview', 'renderDetailPreview'];
-        foreach (array_keys($this->invokePrivate('designSections')) as $section) {
+        $methoden = [DesignTab::class . '::renderDesignPreview', DesignTab::class . '::renderDetailPreview'];
+        foreach (array_keys(DesignTab::designSections()) as $section) {
             foreach (ctp_test_settings_callbacks('churchtools-plugin_design_' . $section) as $callback) {
                 if (is_array($callback)) {
-                    $methoden[] = $callback[1];
+                    $methoden[] = (is_object($callback[0]) ? get_class($callback[0]) : $callback[0]) . '::' . $callback[1];
                 }
             }
         }
 
-        $quelle = file(CTP_PLUGIN_DIR . 'includes/Admin/SettingsPage.php');
         $zuLang = [];
         $geprueft = 0;
 
         foreach (array_unique($methoden) as $methode) {
-            $r = new ReflectionMethod(SettingsPage::class, $methode);
+            $r = new ReflectionMethod($methode);
+            $quelle = file((string) $r->getFileName());
             $code = implode('', array_slice($quelle, $r->getStartLine() - 1, $r->getEndLine() - $r->getStartLine() + 1));
 
             preg_match_all("/(?:esc_html_e|esc_html__|esc_attr_e|esc_attr__|__)\\(\\s*'((?:[^'\\\\]|\\\\.)*)'/u", $code, $treffer);
@@ -312,7 +313,7 @@ final class SettingsPageTest extends TestCase
         (new SettingsPage())->registerSettings();
 
         $labels = [];
-        foreach (array_keys($this->invokePrivate('designSections')) as $section) {
+        foreach (array_keys(DesignTab::designSections()) as $section) {
             foreach (ctp_test_settings_fields('churchtools-plugin_design_' . $section) as $field) {
                 $labels[] = $field['title'];
             }
@@ -370,7 +371,7 @@ final class SettingsPageTest extends TestCase
 
     private function currentDesignSection(): string
     {
-        return (new ReflectionMethod(SettingsPage::class, 'currentDesignSection'))->invoke(null);
+        return DesignTab::currentDesignSection();
     }
 
     /**
