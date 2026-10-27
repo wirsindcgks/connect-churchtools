@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ChurchToolsPlugin\Admin;
 
-use ChurchToolsPlugin\Update\GitHubUpdateChecker;
-
 /**
  * Der Reiter „Updates" unter „Einstellungen", dazu die Auskunft ueber neue
  * Versionen und das Changelog, die auch Statuszeile und Uebersicht lesen.
@@ -216,6 +214,16 @@ final class UpdatesTab
                 }
 
                 preg_match('/^## \[?([^\]\s]+)\]?(?:\s*[-–]\s*(.+))?$/u', $line, $matches);
+
+                // Keep a Changelog sammelt Kommendes unter [Unreleased]. Das
+                // ist keine Version - in einem Stand von main stuende sonst
+                // „Unreleased“ als neueste Version in der Uebersicht.
+                if (strcasecmp(trim($matches[1] ?? ''), 'Unreleased') === 0) {
+                    $current = null;
+
+                    continue;
+                }
+
                 $current = [
                     'version' => trim($matches[1] ?? ''),
                     'date' => trim($matches[2] ?? ''),
