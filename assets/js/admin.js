@@ -195,7 +195,7 @@
 					button.disabled = false;
 
 					if (data.success) {
-						ctpSetStatus(result, 'ok', labels.applied);
+						ctpSetStatus(result, 'success', labels.applied);
 
 						if (summary && data.data && data.data.location_summary) {
 							summary.textContent = data.data.location_summary;
