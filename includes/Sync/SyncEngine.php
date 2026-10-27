@@ -317,7 +317,7 @@ final class SyncEngine
     /**
      * Geprueft wird die Form, nicht nur der Typ: is_array() allein sagt nichts
      * ueber die Schluessel, und die drei Aufrufer greifen alle direkt auf
-     * 'time' bzw. 'message' zu (SettingsPage::renderStatusOverview(),
+     * 'time' bzw. 'message' zu (Admin\OverviewTab::render(),
      * SettingsPage::ajaxRunSync(), SyncHealthNotice::problem()). Ohne diese
      * Pruefung braeuchte jeder von ihnen sein eigenes ?? '' - und ein
      * vergessenes waere eine Warnung auf einer Admin-Seite. In der Option kann
