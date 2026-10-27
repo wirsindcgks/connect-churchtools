@@ -44,7 +44,7 @@ final class TemplateVersions
 
         $head = (string) file_get_contents($path, false, null, 0, 8192);
 
-        return preg_match('/^[ \t\/*#]*@version[ \t]+(\d+\.\d+\.\d+)[ \t]*$/m', $head, $match) === 1 ? $match[1] : null;
+        return preg_match('/^[ \t\/*#]*@version[ \t]+(\d+\.\d+\.\d+)[ \t\r]*$/m', $head, $match) === 1 ? $match[1] : null;
     }
 
     public static function bundledVersion(string $file): string

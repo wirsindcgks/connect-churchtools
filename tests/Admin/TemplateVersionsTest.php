@@ -36,6 +36,15 @@ final class TemplateVersionsTest extends TestCase
         $this->assertNull(TemplateVersions::read('/gibt/es/nicht.php'));
     }
 
+    /** Eine unter Windows bearbeitete Kopie haette sonst nie eine Version, der Hinweis bliebe stehen. */
+    public function testReadsTheVersionWithWindowsLineEndings(): void
+    {
+        $path = $this->copy('');
+        file_put_contents($path, "<?php\r\n/**\r\n * @version 1.39.0\r\n * @var array \$args\r\n */\r\n");
+
+        $this->assertSame('1.39.0', TemplateVersions::read($path));
+    }
+
     public function testOnlyOlderCopiesAndCopiesWithoutVersionAreOutdated(): void
     {
         $plugin = TemplateVersions::bundledVersion('group-grid.php');
