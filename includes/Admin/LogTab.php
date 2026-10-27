@@ -22,7 +22,7 @@ final class LogTab
      * Aufbewahrung (Nutzerentscheidung 2026-09-16) - die Fehlersuche auf der
      * eigenen Seite braucht nicht mehr.
      *
-     * Rein lesend wie die Terminliste (renderEventsOverview()) und nach
+     * Rein lesend wie die Terminliste (EventsTab::render()) und nach
      * demselben Muster: eigene Filter aus $_GET, serverseitige Seiten.
      */
     public static function render(): void
@@ -51,7 +51,7 @@ final class LogTab
                     <?php // $total ist bereits gefiltert - eine leere Antwort auf
                     // einen aktiven Filter sagt nichts darueber, ob es ueberhaupt
                     // Eintraege gibt (derselbe Unterschied wie bei $stats['total']
-                    // gegen $totalMatching in renderEventsOverview()). ?>
+                    // gegen $totalMatching in EventsTab::render()). ?>
                     <?php if ($queryFilters === [] || $repository->count() === 0) : ?>
                         <?php esc_html_e('Noch keine Protokolleinträge.', 'churchtools-plugin'); ?>
                     <?php else : ?>
