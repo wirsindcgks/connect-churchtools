@@ -14,7 +14,7 @@ Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/): E
   - die Weiterleitung der Backend-Adressen aus der Zeit vor 1.26 (alte Lesezeichen führen dann nicht mehr auf die richtige Seite)
 - **Die Zusage unten gilt.**
 
-**Bleibt beim Update auf 2.0 erhalten:** Einstellungen, Kalender- und Gruppenauswahl, Design, alle Shortcodes, Blöcke und WPBakery-Elemente auf bestehenden Seiten, die Adressen der Terminseiten und der Kalender-Abos. Ordner und technische Kennung des Plugins (`churchtools-plugin`) ändern sich nicht – Updates kommen weiter auf dem gewohnten Weg.
+**Bleibt beim Update auf 2.0 erhalten:** Einstellungen, Kalender- und Gruppenauswahl, die Beiträge, Design, alle Shortcodes, Blöcke und WPBakery-Elemente auf bestehenden Seiten, die Adressen der Terminseiten und der Kalender-Abos. Ordner und technische Kennung des Plugins (`churchtools-plugin`) ändern sich nicht – Updates kommen weiter auf dem gewohnten Weg.
 
 ## Was zugesagt ist
 
@@ -24,11 +24,13 @@ Die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/): E
 
 `[ctp_groups]` mit den Attributen `source` (`homepage`, `groups`), `homepage`, `groups`, `layout` (`grid`, `featured`), `columns`, `finder`, `search`.
 
+`[ctp_posts]` (seit 1.38.0) mit den Attributen `groups`, `layout` (`grid`, `featured`), `columns`, `limit` (`0` = alle gespeicherten).
+
 Zugesagt sind Name, erlaubte Werte und Bedeutung. Neue Attribute und neue Werte können in jeder Minor-Version dazukommen; Standardwerte ändern sich nur, wenn sich dadurch auf bestehenden Seiten nichts ändert. Die Beschreibung jedes Attributs steht in der [readme.txt](../readme.txt) und im Backend unter *Einbinden*.
 
 ### Blöcke und WPBakery-Elemente
 
-Die Blöcke `churchtools-plugin/event-list` und `churchtools-plugin/group-list` mit ihren gespeicherten Attributen, die WPBakery-Elemente `ctp_events` und `ctp_groups` mit ihren Parametern. Eine gespeicherte Seite rendert nach einem Minor-Update gleich.
+Die Blöcke `churchtools-plugin/event-list`, `churchtools-plugin/group-list` und `churchtools-plugin/post-list` mit ihren gespeicherten Attributen, die WPBakery-Elemente `ctp_events`, `ctp_groups` und `ctp_posts` mit ihren Parametern. Eine gespeicherte Seite rendert nach einem Minor-Update gleich.
 
 Nicht zugesagt sind die Beschriftungen im Editor – mit 2.0 heißen die Blöcke zum Beispiel anders, gespeicherte Seiten betrifft das nicht.
 
@@ -44,6 +46,8 @@ Ein Theme kann diese Dateien unter `wp-content/themes/<theme>/churchtools-plugin
 | `event-detail.php` | `$event`, `$order`, `$backUrl`, `$designClass`, `$designStyle`, `$detailContext` | `partials/event-detail-content.php` |
 | `group-grid.php` | `$groups`, `$args` | `partials/group-cta.php` für den Button nach ChurchTools; für das Popup je Kachel `partials/group-detail.php` in einem `<template class="ctp-events__detail-template">` und einmal `partials/modal.php` |
 | `group-featured.php` | `$groups`, `$args` | `partials/group-cta.php` |
+| `post-grid.php` | `$posts`, `$args` | für das Popup je Kachel `partials/post-detail.php` in einem `<template class="ctp-events__detail-template">` und einmal `partials/modal.php` |
+| `post-featured.php` | `$posts`, `$args` | wie `post-grid.php` |
 
 Zugesagt sind die Dateinamen, die Variablen und die Schlüssel, die in den mitgelieferten Vorlagen gelesen werden. Neue Schlüssel können dazukommen. Die mitgelieferten Vorlagen selbst können sich in jeder Version ändern – eine Kopie im Theme bekommt solche Änderungen nicht und sollte nach Updates mit dem Original verglichen werden. Die Übersicht im Backend nennt die Vorlagen, die ein Theme überschreibt.
 
@@ -51,8 +55,8 @@ Die Partials unter `partials/` sind **nicht** einzeln überschreibbar und nicht 
 
 ### CSS
 
-- **Container-Klassen**: `ctp-events`, `ctp-events--list`, `ctp-events--grid`, `ctp-events--upcoming`, `ctp-events--detail`, `ctp-groups`, `ctp-groups--featured`.
-- **Klassen in den überschreibbaren Vorlagen** (`ctp-events__…`, `ctp-groups__…`) bleiben erhalten; neue können dazukommen.
+- **Container-Klassen**: `ctp-events`, `ctp-events--list`, `ctp-events--grid`, `ctp-events--upcoming`, `ctp-events--detail`, `ctp-groups`, `ctp-groups--featured`, `ctp-posts`, `ctp-posts--featured`.
+- **Klassen in den überschreibbaren Vorlagen** (`ctp-events__…`, `ctp-groups__…`, `ctp-posts__…`) bleiben erhalten; neue können dazukommen.
 - **Buttons**: `ctp-button` (betont: Rand, beim Überfahren gefüllt) und `ctp-button ctp-button--quiet` (zurückhaltend). Farben und Zustände aller Buttons kommen von diesen Klassen, samt Schutz gegen Link-Regeln des Themes; eine Vorlage im Theme, die einen Button mitbringt, gibt ihm diese Klassen. Die Variablen `--ctp-btn-*` darin sind nicht zugesagt.
 - **Custom Properties**, über die ein Theme das Aussehen anpassen kann: `--ctp-accent`, `--ctp-color-surface`, `--ctp-color-text`, `--ctp-color-muted`, `--ctp-color-border`, `--ctp-color-button`, `--ctp-color-button-text`, `--ctp-color-button-border`, `--ctp-color-button-strong`, `--ctp-color-button-strong-text`, `--ctp-radius`, `--ctp-radius-pill`, `--ctp-shadow`, `--ctp-gap`, `--ctp-font-base`, `--ctp-card-min`.
 
