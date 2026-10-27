@@ -49,7 +49,7 @@ Ein Theme kann diese Dateien unter `wp-content/themes/<theme>/churchtools-plugin
 | `post-grid.php` | `$posts`, `$args` | für das Popup je Kachel `partials/post-detail.php` in einem `<template class="ctp-events__detail-template">` und einmal `partials/modal.php` |
 | `post-featured.php` | `$posts`, `$args` | wie `post-grid.php` |
 
-Zugesagt sind die Dateinamen, die Variablen und die Schlüssel, die in den mitgelieferten Vorlagen gelesen werden. Neue Schlüssel können dazukommen. Die mitgelieferten Vorlagen selbst können sich in jeder Version ändern – eine Kopie im Theme bekommt solche Änderungen nicht und sollte nach Updates mit dem Original verglichen werden. Die Übersicht im Backend nennt die Vorlagen, die ein Theme überschreibt.
+Zugesagt sind die Dateinamen, die Variablen und die Schlüssel, die in den mitgelieferten Vorlagen gelesen werden. Neue Schlüssel können dazukommen. Die mitgelieferten Vorlagen selbst können sich in jeder Version ändern – eine Kopie im Theme bekommt solche Änderungen nicht und sollte nach Updates mit dem Original verglichen werden. Dafür trägt jede Vorlage seit 1.39.0 im Kopf eine Zeile `@version x.y.z`: die Version, mit der sie sich zuletzt so geändert hat, dass Kopien nachziehen sollten. Ist die Kopie im Theme älter oder hat sie keine solche Zeile, nennt ein Hinweis auf den Seiten des Plugins die Datei. Nach dem Abgleich die Zeile in der Kopie auf die Version des Originals setzen, dann verschwindet der Hinweis.
 
 Die Partials unter `partials/` sind **nicht** einzeln überschreibbar und nicht zugesagt.
 

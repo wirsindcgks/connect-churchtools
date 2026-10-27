@@ -18,6 +18,8 @@
  * (partials/group-detail.php, partials/modal.php); nach ChurchTools fuehrt der
  * Button darunter (partials/group-cta.php, siehe GroupListRenderer).
  *
+ * @version 1.39.0
+ *
  * @var array $groups
  * @var array $args
  */

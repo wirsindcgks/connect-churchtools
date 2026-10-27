@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ChurchToolsPlugin\Tests\Admin;
 
+use ChurchToolsPlugin\Admin\TemplateVersions;
 use ChurchToolsPlugin\Admin\UpgradeReadiness;
 use ChurchToolsPlugin\Security\Crypto;
 use PHPUnit\Framework\TestCase;
@@ -92,7 +93,7 @@ final class UpgradeReadinessTest extends TestCase
         $files = array_map('basename', glob(CTP_PLUGIN_DIR . 'includes/Frontend/templates/*.php') ?: []);
         sort($files);
 
-        $listed = UpgradeReadiness::OVERRIDABLE_TEMPLATES;
+        $listed = TemplateVersions::TEMPLATES;
         sort($listed);
 
         $this->assertNotSame([], $files);

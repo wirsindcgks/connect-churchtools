@@ -5,6 +5,21 @@ Alle nennenswerten Änderungen an diesem Projekt werden hier dokumentiert.
 Format basiert auf [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
+## [Unreleased]
+
+### Added
+
+- **Veraltete Vorlagen im Theme fallen auf.** Jede überschreibbare Vorlage (`event-*.php`, `group-*.php`, `post-*.php`) trägt im Kopf eine Zeile `@version`. Benutzt ein Theme eine ältere Kopie oder eine ohne diese Zeile, nennt ein Hinweis auf den Seiten des Plugins die Datei samt beiden Versionen. Nach dem Abgleich mit dem Original die Zeile in der Kopie anheben, dann verschwindet er. Anlass war 1.28.0: Ein Theme mit eigener `group-grid.php` bekam den Button nach ChurchTools nicht, und nichts im Backend sagte das.
+
+### Changed
+
+- **Backend intern aufgeteilt**, ohne sichtbare Änderung: Das Skript aller Bereiche steht in `assets/js/admin.js` statt inline in der Seite, jeder Reiter hat eine eigene Klasse. Vorbereitung auf die Kompatibilitätszusage von 2.0.
+
+### Fixed
+
+- „Übernommen“ im Reiter *Events → Räume* erscheint wieder grün mit Haken wie die anderen Meldungen; es stand ohne Farbe und Symbol da.
+- Die Vorbereitung auf 2.0.0 in der Übersicht meldet auch eigene Beitragsvorlagen (`post-grid.php`, `post-featured.php`) im Theme.
+
 ## [1.38.1] - 2026-10-22
 
 ### Fixed

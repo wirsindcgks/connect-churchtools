@@ -12,6 +12,8 @@
  * from there (closest('li, .ctp-events__hero')), so a template placed next to the unit
  * rather than inside it leaves the click with nothing to open.
  *
+ * @version 1.39.0
+ *
  * @var array $events
  * @var array $args
  */

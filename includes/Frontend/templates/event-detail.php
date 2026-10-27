@@ -5,6 +5,8 @@
  * EventDetailPage::maybeRenderDetail() between get_header()/get_footer().
  * Override by copying this file to yourtheme/churchtools-plugin/event-detail.php.
  *
+ * @version 1.39.0
+ *
  * @var array $event Already enriched via EventListRenderer::withCalendarMeta().
  * @var array $order Validated DetailDesign::ELEMENT_KEYS permutation.
  * @var string $backUrl

@@ -9,6 +9,8 @@
  * endpoint can render further pages of identical markup — see that file's
  * docblock for what an override has to keep in mind.
  *
+ * @version 1.39.0
+ *
  * @var array $events
  * @var array $args
  * @var array $filterCalendars
