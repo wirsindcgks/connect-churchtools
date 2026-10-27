@@ -45,7 +45,10 @@ final class VersionConsistencyTest extends TestCase
     public function testChangelogDocumentsCurrentVersion(): void
     {
         $changelog = (string) file_get_contents(self::ROOT . '/CHANGELOG.md');
-        preg_match('/^## \[([^\]]+)\]/m', $changelog, $matches);
+        // [Unreleased] sammelt zwischen zwei Releases, was kommt, und zaehlt
+        // nicht. Bleibt er beim Anheben der Version stehen, steht darunter noch
+        // die alte Version, und der Vergleich schlaegt weiter fehl.
+        preg_match('/^## \[(?!Unreleased\])([^\]]+)\]/mi', $changelog, $matches);
 
         $this->assertNotEmpty($matches, 'CHANGELOG.md has no "## [x.y.z]" release heading.');
         $this->assertSame(

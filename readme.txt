@@ -188,6 +188,10 @@ Das Plugin heißt dann „Connect ChurchTools“, braucht PHP 8.3 und WordPress 
 
 Ab 2.0 gilt eine Kompatibilitätszusage: Shortcode-Attribute, die überschreibbaren Vorlagen samt ihrer Variablen, die dort verwendeten CSS-Klassen, die CSS-Variablen für eigene Farben und die öffentlichen Adressen ändern sich nur noch mit einer neuen Hauptversion. Die Einzelheiten stehen in `docs/COMPATIBILITY.md` im Repository.
 
+= Ich habe eine Vorlage ins Theme kopiert. Was ist bei Updates zu beachten? =
+
+Eine Kopie unter `churchtools-plugin/` im Theme bekommt Änderungen am Original nicht mit. Jede Vorlage trägt deshalb im Kopf eine Zeile `@version`: die Version, mit der sie sich zuletzt so geändert hat, dass Kopien nachziehen sollten. Ist die Kopie älter oder fehlt ihr die Zeile, nennt ein Hinweis auf den Seiten des Plugins die Datei. Die Kopie dann mit dem Original unter `includes/Frontend/templates/` vergleichen, übernehmen, was fehlt, und die Zeile `@version` in der Kopie auf die Version des Originals setzen – danach verschwindet der Hinweis.
+
 Connect ChurchTools ist ein unabhängiges Projekt und steht in keiner Verbindung zur ChurchTools Innovations GmbH, der Herstellerin von ChurchTools. ChurchTools ist eine Marke der ChurchTools Innovations GmbH.
 
 = Wie weit im Voraus werden Termine synchronisiert? =

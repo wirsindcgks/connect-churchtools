@@ -7,6 +7,8 @@
  * einer Startseite. Ueberschreibbar durch eine Kopie unter
  * yourtheme/churchtools-plugin/post-featured.php.
  *
+ * @version 1.39.0
+ *
  * @var array $posts
  * @var array $args
  */

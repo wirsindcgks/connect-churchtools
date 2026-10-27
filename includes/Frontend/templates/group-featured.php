@@ -17,6 +17,8 @@
  * ChurchTools fuehrt der Button (partials/group-cta.php). Die Zelle um die
  * Kachel ist die Einheit, in der frontend.js das <template> sucht.
  *
+ * @version 1.39.0
+ *
  * @var array $groups
  * @var array $args
  */

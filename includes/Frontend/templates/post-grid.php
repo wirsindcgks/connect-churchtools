@@ -13,6 +13,8 @@
  * Ein Klick auf die Kachel oeffnet den ganzen Beitrag im Popup
  * (partials/post-detail.php, partials/modal.php).
  *
+ * @version 1.39.0
+ *
  * @var array $posts
  * @var array $args
  */

@@ -10,6 +10,7 @@ use ChurchToolsPlugin\Admin\MajorVersionNotice;
 use ChurchToolsPlugin\Admin\PrivacyPolicy;
 use ChurchToolsPlugin\Admin\SettingsPage;
 use ChurchToolsPlugin\Admin\SyncHealthNotice;
+use ChurchToolsPlugin\Admin\TemplateVersionNotice;
 use ChurchToolsPlugin\Blocks\EventListBlock;
 use ChurchToolsPlugin\Blocks\GroupListBlock;
 use ChurchToolsPlugin\Blocks\PostListBlock;
@@ -61,6 +62,7 @@ final class Plugin
             (new SyncHealthNotice())->register();
             (new PrivacyPolicy())->register();
             (new MajorVersionNotice())->register();
+            (new TemplateVersionNotice())->register();
         }
 
         (new Shortcode())->register();

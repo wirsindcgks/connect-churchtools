@@ -28,16 +28,6 @@ final class UpgradeReadiness
 
     public const MIN_WP = '6.6';
 
-    /** Die Vorlagen, die ein Theme unter churchtools-plugin/ ueberschreiben kann. */
-    public const OVERRIDABLE_TEMPLATES = [
-        'event-list.php',
-        'event-grid.php',
-        'event-upcoming.php',
-        'event-detail.php',
-        'group-grid.php',
-        'group-featured.php',
-    ];
-
     /**
      * @param string|null  $phpVersion  Zum Testen; sonst PHP_VERSION.
      * @param string|null  $wpVersion   Zum Testen; sonst die laufende WordPress-Version.
@@ -123,7 +113,7 @@ final class UpgradeReadiness
     {
         $found = [];
 
-        foreach (self::OVERRIDABLE_TEMPLATES as $file) {
+        foreach (TemplateVersions::TEMPLATES as $file) {
             if (locate_template('churchtools-plugin/' . $file) !== '') {
                 $found[] = $file;
             }

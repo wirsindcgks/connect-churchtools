@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ChurchToolsPlugin\Tests\Admin;
 
-use ChurchToolsPlugin\Admin\SettingsPage;
+use ChurchToolsPlugin\Admin\UpdatesTab;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -22,7 +22,7 @@ final class ChangelogParserTest extends TestCase
      */
     private function split(string $line): array
     {
-        $method = new ReflectionMethod(SettingsPage::class, 'splitChangelogLine');
+        $method = new ReflectionMethod(UpdatesTab::class, 'splitChangelogLine');
 
         return $method->invoke(null, $line);
     }
@@ -99,7 +99,7 @@ final class ChangelogParserTest extends TestCase
      */
     public function testStripsBoldFromLinesThatDoNotStartWithIt(): void
     {
-        $method = new ReflectionMethod(SettingsPage::class, 'splitChangelogLine');
+        $method = new ReflectionMethod(UpdatesTab::class, 'splitChangelogLine');
         $parsed = $method->invoke(null, 'Gilt weiterhin **über** der Vorlage');
 
         $this->assertSame('Gilt weiterhin über der Vorlage', $parsed['lead']);
@@ -112,7 +112,7 @@ final class ChangelogParserTest extends TestCase
      */
     public function testReadsTheShippedChangelog(): void
     {
-        $method = new ReflectionMethod(SettingsPage::class, 'changelogReleases');
+        $method = new ReflectionMethod(UpdatesTab::class, 'changelogReleases');
         $releases = $method->invoke(null, 3, 6);
 
         $this->assertCount(3, $releases, 'Der Tab „Updates“ zeigt die letzten drei Versionen.');

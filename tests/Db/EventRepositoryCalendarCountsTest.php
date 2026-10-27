@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * countsByCalendar() liefert die Zahlen, die im Tab „Kalender“ auf jeder
- * Kalenderkachel stehen (siehe SettingsPage::renderCalendarCard()). Sie sind
+ * Kalenderkachel stehen (siehe CalendarsTab::renderCalendarCard()). Sie sind
  * dort der einzige Hinweis darauf, ob ein aktivierter Kalender ueberhaupt noch
  * etwas liefert - eine falsche Aufteilung zwischen „kommend“ und „gesamt“
  * bliebe also unbemerkt und wuerde einen toten Kalender gesund aussehen
@@ -48,7 +48,7 @@ final class EventRepositoryCalendarCountsTest extends TestCase
     /**
      * Ein Kalender ohne eine einzige Zeile taucht gar nicht erst auf - genau
      * deshalb setzt der Aufrufer den Standardwert selbst (siehe
-     * renderCalendarsTab()), statt sich hier auf einen Nulleintrag zu
+     * CalendarsTab::render()), statt sich hier auf einen Nulleintrag zu
      * verlassen.
      */
     public function testCalendarsWithoutRowsAreAbsentRatherThanZero(): void
