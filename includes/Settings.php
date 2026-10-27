@@ -34,7 +34,7 @@ final class Settings
             /**
              * Keyed by ChurchTools calendar ID:
              * [ 'name' => string, 'enabled' => bool, 'color' => '#rrggbb',
-             *   'default_color' => '#rrggbb' (ChurchTools' own color, for the "reset" button, see Admin\SettingsPage::renderCalendarCard()),
+             *   'default_color' => '#rrggbb' (ChurchTools' own color, for the "reset" button, see Admin\CalendarsTab::renderCalendarCard()),
              *   'default_image_id' => int (attachment ID) ]
              */
             'calendars' => [],
