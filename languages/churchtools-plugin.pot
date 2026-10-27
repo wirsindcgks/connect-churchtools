@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later license.
 msgid ""
 msgstr ""
-"Project-Id-Version: ChurchTools Events 1.38.1\n"
+"Project-Id-Version: ChurchTools Events 1.39.0\n"
 "Report-Msgid-Bugs-To: https://github.com/wirsindcgks/connect-churchtools/issues\n"
 "POT-Creation-Date: 2026-10-27 07:59:01+0000\n"
 "MIME-Version: 1.0\n"
