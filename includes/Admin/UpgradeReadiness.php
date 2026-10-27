@@ -36,6 +36,8 @@ final class UpgradeReadiness
         'event-detail.php',
         'group-grid.php',
         'group-featured.php',
+        'post-grid.php',
+        'post-featured.php',
     ];
 
     /**

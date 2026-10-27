@@ -80,6 +80,25 @@ final class UpgradeReadinessTest extends TestCase
         $this->assertSame(0, UpgradeReadiness::openActions($checks));
     }
 
+    /**
+     * Die Liste deckt sich mit den Vorlagen, die tatsaechlich im Ordner liegen.
+     * Mit den Beitraegen (1.38.0) kamen post-grid.php und post-featured.php
+     * dazu, die Liste blieb bei sechs - ein Theme mit eigener Beitragsvorlage
+     * fiel der Pruefung nicht auf. Partials sind nicht ueberschreibbar und
+     * liegen deshalb in einem Unterordner, den glob() hier nicht sieht.
+     */
+    public function testEveryTemplateInTheFolderIsListedAsOverridable(): void
+    {
+        $files = array_map('basename', glob(CTP_PLUGIN_DIR . 'includes/Frontend/templates/*.php') ?: []);
+        sort($files);
+
+        $listed = UpgradeReadiness::OVERRIDABLE_TEMPLATES;
+        sort($listed);
+
+        $this->assertNotSame([], $files);
+        $this->assertSame($files, $listed);
+    }
+
     /** @return array<string, array{status: string, label: string, detail: string}> */
     private function byKey(array $checks): array
     {
