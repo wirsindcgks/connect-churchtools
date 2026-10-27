@@ -23,7 +23,7 @@ require __DIR__ . '/Support/SqliteWpdb.php';
 // test value keeps encrypt()/decrypt() deterministic without needing wp_salt().
 define('AUTH_KEY', 'phpunit-test-auth-key-do-not-use-in-production');
 
-// Das Plugin-Verzeichnis - SettingsPage::changelogReleases() liest die
+// Das Plugin-Verzeichnis - UpdatesTab::changelogReleases() liest die
 // mitgelieferte CHANGELOG.md darueber ein (siehe ChangelogParserTest).
 define('CTP_PLUGIN_DIR', dirname(__DIR__) . '/');
 
