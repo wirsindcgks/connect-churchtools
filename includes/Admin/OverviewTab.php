@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ChurchToolsPlugin\Admin;
 
-use ChurchToolsPlugin\Api\Client;
 use ChurchToolsPlugin\Db\EventRepository;
 use ChurchToolsPlugin\Sync\SyncEngine;
 
@@ -69,7 +68,7 @@ final class OverviewTab
                             /* translators: 1: date/time the sync last failed, 2: error message */
                             esc_html__('Letzter Sync-Fehler (%1$s): %2$s', 'churchtools-plugin'),
                             esc_html(mysql2date($facts['date_format'], $lastError['time'])),
-                            // Client::excerpt() kuerzt neue Meldungen bereits an
+                            // Api\Client::excerpt() kuerzt neue Meldungen bereits an
                             // der Quelle; in ctp_last_sync_error kann aus der Zeit
                             // davor aber noch eine komplette HTML-Fehlerseite
                             // liegen, und die schoebe diesen Kasten ueber die
