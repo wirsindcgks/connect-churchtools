@@ -32,3 +32,48 @@ Entscheidungen. Diese Datei hält nur fest, was ein Agent für wiederkehrende Ab
   suchen“); hochladen muss niemand.
 - **Nach der Auslieferung:** nichts Festes. Meldet der Nutzer, dass eine Seite die neue Version hat, genügt ein Satz in
   `plan.md`, wenn er es wünscht.
+
+## Prüfung
+
+*Für den persönlichen Agenten `pruefer` (seit 2026-11-23): Pflichtpunkte zusätzlich zu seinen allgemeinen Prüfungen.
+Herkunft: `plan.md`, „Konventionen“ und „Sicherheits- und Datenschutz-Review vom 2026-09-14“.*
+
+- **Was so bleiben muss** (Review 2026-09-14): SQL nur über `$wpdb->prepare()` (Bezeichner mit `%i`); jede Ausgabe
+  escaped (`esc_html`, `esc_attr`, `esc_url`, `wp_kses`); jede Admin-Aktion mit Nonce **und** `manage_options`;
+  Sanitizer als Allowlist, Name und Hash nie aus dem Formular; Hash prüfen, bevor er in einen Pfad geht; Bilder lokal
+  über `download_url()` statt verlinkt; bei leerer API-Antwort den Bestand nicht leeren; Normalisierer übernehmen nur
+  benannte Felder.
+- **Token und Daten:** Der API-Key verlässt nie den ChurchTools-Host (keine Weiterleitungen, `'redirection' => 0`); keine
+  Personen-IDs oder -Daten in Spalten, Logs oder Kontext, die niemand braucht; das Protokoll folgt den
+  Datenschutzregeln der Klasse `Log`.
+- **Lieferkette:** Jede installierte Kopie installiert, was `update.json` auf `main` nennt. Actions auf Commit-SHA gepinnt
+  (Version als Kommentar), Workflow-Rechte so klein wie möglich, Schreibrecht nur im veröffentlichenden Job;
+  `update.json` nur über `bin/make-update-json.php`; neue Abhängigkeiten (Composer, npm, Actions) begründen.
+- **Kompatibilitätszusage** (`docs/COMPATIBILITY.md`, ab 2.0): Shortcodes, Attribute, Werte, Blöcke, Vorlagen und
+  Hooks brechen nur in einer Hauptversion. Neue Attribute und Werte dort eintragen.
+- **Vorlagen** unter `includes/Frontend/templates/` tragen `@version`; wer eine Vorlage ändert, hebt sie an.
+- **Drei Wege, ein Verhalten:** Shortcode, Gutenberg-Block und WPBakery-Element nutzen dieselbe Rendering-Basis und
+  bieten dieselben Optionen – eine neue Option kommt in alle drei.
+- **Admin-UI:** ein eigener Reiter je Feature-Thema, mit eigenem Settings-Slug und eigenem `<form>`.
+- **Texte:** übersetzbar mit der Textdomain `churchtools-plugin`; Oberfläche und Doku deutsch, Code englisch.
+- **Öffentliches Repository:** keine Namen der realen Instanz, der Gemeinde oder ihrer Website, keine Keys, keine
+  Instanz-Adressen – in Code, Tests, Doku und `plan.md`.
+- **Tests und Doku:** neue Funktion → neuer Test; `composer lint`, `composer analyse`, `composer test` grün; Änderungen
+  für Nutzer in `readme.txt` und `docs/*.md`, der Arbeitsstand in `plan.md`.
+
+## Kommunikation
+
+*Für den persönlichen Agenten `kommunikation` (seit 2026-11-23).*
+
+- **Konto:** `gh` mit `GH_TOKEN=$(gh auth token -u cgksmedia)`, Repository `wirsindcgks/connect-churchtools`. Gepostet
+  wird nur nach dem OK des Nutzers.
+- **Sprache und Anrede:** Deutsch, „du“, mit Vornamen („Hey Josua,“); Gruß „Viele Grüße“ mit der Unterschrift „CG-KS“ –
+  so sind die bisherigen Antworten.
+- **Wertschätzend:** Wer etwas vorschlägt oder meldet, zeigt eine Lücke im Plugin, keinen eigenen Fehler. Erste
+  Rückmeldung zeitnah, auch ohne Bauplan; wenn etwas erscheint, mit Version und Weg im Backend („Einstellungen →
+  ChurchTools → …“) und dem Hinweis, dass das Update im Reiter „Updates“ ankommt.
+- **Dank:** Ein umgesetzter Vorschlag bekommt im umsetzenden Commit ein `Co-authored-by` mit der noreply-Adresse
+  (`gh api users/<login>`) und im Issue einen Dank. Ob auch das Changelog dankt, entscheidet der Nutzer – bisher tut es
+  das nicht.
+- **Vorsicht mit Zusagen:** Was die Kompatibilitätszusage betrifft (Shortcodes, Attribute, Vorlagen), nur zusagen, was
+  in `docs/COMPATIBILITY.md` steht.
